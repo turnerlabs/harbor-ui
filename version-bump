@@ -1,0 +1,60 @@
+#!/bin/bash
+
+have_jq=$(which jq)
+
+if [[ -z "${have_jq}" ]]; then
+  echo "You must have jq (https://stedolan.github.io/jq/) installed to use version-bump"
+  exit -1
+fi
+
+platform=$(uname -s)
+pkg="package.json"
+tmf="_TURNER_METADATA"
+
+pkg_version=$(cat "${pkg}" |jq -r .version)
+tmf_version=$(cat "${tmf}" |grep VERSION |awk -F'=' '{ print $2 }')
+
+if [[ "${pkg_version}" != "${tmf_version}" ]]; then
+  echo "The versions from ${pkg} and ${tmf} do not match,"
+  echo "using ${tmf}'s version as authoratative."
+  echo
+fi
+
+echo "Current version: ${tmf_version}"
+echo "Please enter new version (must use semver):"
+read version
+
+if [[ "${version}" =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  # String replace
+  pkg1_version="\"version\":\ \"${pkg_version}\""
+  pkg2_version="\"version\":\ \"${version}\""
+
+  if [[ "${platform}" == "Darwin" ]]; then
+    sed -i .bak "s/${pkg1_version}/${pkg2_version}/" "${pkg}"
+    rm "${pkg}.bak"
+  else
+    sed -i "s/${pkg1_version}/${pkg2_version}/" "${pkg}"
+  fi
+
+  tmf1_version="VERSION=${tmf_version}"
+  tmf2_version="VERSION=${version}"
+  if [[ "${platform}" == "Darwin" ]]; then
+    sed -i .bak "s/${tmf1_version}/${tmf2_version}/" "${tmf}"
+    rm "${tmf}.bak"
+  else
+    sed -i "s/${tmf1_version}/${tmf2_version}/" "${tmf}"
+  fi
+
+  # Git add, git commit
+  echo "Git add and commit? [Yn]"
+  read do_git
+
+  if [[ "${do_git}" == "Y" ]]; then
+    git add --verbose "${pkg}" "${tmf}"
+    git commit --verbose --message="Bump version to ${version}"
+  fi
+else
+  echo "The version you entered (${version}) does not match the SemVer spec,"
+  echo "see more at http://semver.org/spec/v2.0.0.html"
+  exit -2
+fi

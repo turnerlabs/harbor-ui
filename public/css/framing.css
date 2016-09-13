@@ -1,0 +1,110 @@
+body {
+    background-color: #eee;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+app,
+div#app,
+div.logged-in {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    margin-top: 20px;
+    flex: 1 0 auto;
+}
+
+ul.with-icons {
+    list-style-type: disc;
+}
+
+ul.with-icons li {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+
+.tiny-helper {
+    display: block;
+    font-size: 11px;
+    color: #b0bec5;
+}
+
+.kontainer {
+  margin: 0;
+  max-width: 1280px;
+  width: 90%;
+}
+
+.kontainer .row {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
+.kontainer .left-pad {
+    margin-left: 20px;
+}
+
+i.left {
+    margin-right: 5px;
+}
+
+.harbor-sidenav .collection {
+    border-width: 0;
+}
+
+.harbor-sidenav .collection a.collection-item {
+    border-width: 0;
+    background-color: inherit;
+    color: #666;
+}
+
+.harbor-sidenav .collection .collection-item.active {
+    background-color: #bdbdbd;
+    color: #000;
+    font-weight: bold;
+}
+
+footer.page-footer {
+    box-sizing: content-box;
+}
+
+.row .col.s2half {
+  width: 20.83333333335%;
+  margin-left: auto;
+  left: auto;
+  right: auto;
+}
+
+.row .col.s9half {
+  width: 79.16666666665%;
+  min-height: 650px;
+  margin-left: auto;
+  left: auto;
+  right: auto;
+}
+
+/* Overriding Tabs default colors */
+.tabs .tab a {
+  color: #90caf9;
+}
+
+.tabs .tab a.active {
+  color: #42a5f5;
+}
+
+.tabs .tab a:hover {
+  color: #42a5f5;
+  text-decoration: none;
+}
+
+.tabs .tab.disabled a {
+  color: #bbdefb;
+}
+
+.tabs .indicator {
+  background-color: #64b5f6;
+}

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /app
+bin/node/bin/node app.js
