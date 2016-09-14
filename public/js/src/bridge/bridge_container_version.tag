@@ -6,7 +6,7 @@
             <select id="versionSelect-{ idx }" class="bridge-version-select harbor-select" style="width: 100%" onchange="{ saveVersion }">
                 <option
                     each="{ contain in versionCompare(versions) }"
-                    selected="{ container.version == contain.version }"
+                    selected="{ parent.container.version == contain.version }"
                     value="{ JSON.stringify(contain) }">{ contain.version }
                 </option>
             </select>
@@ -17,6 +17,7 @@
     var self = this,
         d = utils.debug,
         lastContainer,
+        localVersion,
         portCount = 0,
         requesting = false;
 
@@ -46,7 +47,9 @@
     }
 
     self.on('update', function () {
-        var version;
+        var version,
+            update;
+            
         self.idx = self.opts.idx;
         self.container = self.opts.container;
 
@@ -71,6 +74,15 @@
             requesting = true;
             lastContainer = self.container.name;
             RiotControl.trigger('get_container_versions', self.container.name, setVersion);
+        }
+        
+        if (!self.container || localVersion !== self.container.version) {
+            update = true;  
+        }
+        
+        localVersion = self.container.version;
+        if (update) {
+            setTimeout(function() { $('.bridge-version-select').select2()});
         }
     });
     </script>
