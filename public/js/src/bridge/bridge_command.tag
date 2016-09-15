@@ -526,7 +526,7 @@
                self.currentRoute += '/tabs-' + tab;
                setTimeout(function() {
                    $('#command_bridge_tabs').find('a[href="#tabs-' + tab + '"]').trigger('click');
-               }, 500);
+               }, 1000);
                if (tab === 'graphs') {
                    view.renderGraphs = true;
                }
