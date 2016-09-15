@@ -45,10 +45,16 @@
 
   saveShipment(evt) {
     var convertedShipment = utils.convertShipment(self.shipment);
-    // Build Shipment
-    self.loading = true;
+    
+    if ((convertedShipment.main.name + '-' + convertedShipment.environment.name).length > 63) {
+        RiotControl.trigger('flash_message', 'error', 'The combination of Shipment and Environment as a name is too long. It must be less than 63 characters.', 30000);
+    } else {
+      // Build Shipment
+      self.loading = true;
+      RiotControl.trigger('bridge_create_shipment', convertedShipment);
+    }
+    
     self.errors = null;
-    RiotControl.trigger('bridge_create_shipment', convertedShipment);
     evt.stopPropagation();
   }
 
