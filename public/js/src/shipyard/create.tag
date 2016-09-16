@@ -32,8 +32,7 @@
 
     <script>
     var self = this,
-        d = utils.debug,
-        timer;
+        d = utils.debug;
 
     self.state;
     self.messages = [];
@@ -89,7 +88,7 @@
         var msg;
 
         if (status === 200 && !data.errors) {
-            msg = 'Created shipment %name %environment, will now attempt to trigger the Shipment.';
+            msg = 'Created shipment %name %environment, will now trigger the Shipment.';
         } else {
             msg = 'Failed to create shipment %name %environment. Status %status. Aborting.';
         }
@@ -139,21 +138,11 @@
     RiotControl.on('build_endpoint_wait_start', function () {
         d('shipyard/create::build_endpoint_wait_start');
 
-        var check = 0;
+        addMessage('Waiting on AWS ELB to be created, this will take several minutes.');
+        addMessage('Please do not access your Shipment until the Load Balancer is ready.');
+        addMessage('Redirecting you to the Command Bridge page in 10 seconds.');
 
-        addMessage('Waiting on AWS Route53 DNS propagation for your new Shipment, this will take five minutes. Please do not refresh this page, but feel free to navigate away.');
-
-        timer = setInterval(function () {
-            // Every 10 secs going to post a little message, after 30 checks, should be good to move along
-            check++;
-            d('shipyard/create::build_endpoint_wait_start::interval-tick(%d of 30)', check);
-
-            if (check > 30) {
-                RiotControl.trigger('build_done');
-            } else {
-                addMessage('Waiting... ' + (check * 10) + ' secs of 300 secs have transpired.');
-            }
-        }, 1000 * 10);
+        RiotControl.trigger('build_done');
     });
 
     /**
@@ -162,11 +151,7 @@
     RiotControl.on('build_done', function () {
         d('shipyard/create::build_done');
 
-        clearInterval(timer);
-
         RiotControl.trigger('clear_state');
-
-        addMessage('Shipment is ready, navigating to Command Bridge in 10 secs.');
 
         setTimeout(function () {
             d('shipyard/trigger::build_done::setTimeout(riot.route)');
@@ -176,7 +161,6 @@
     });
 
     RiotControl.on('app_changed', function () {
-        clearInterval(timer);
         reset();
     });
 
