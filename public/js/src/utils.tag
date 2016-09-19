@@ -341,6 +341,8 @@ var utils = (function () {
                         envVar.add = false;
                         shouldSave.save = true;
                         shouldSave.list.push(envVar);
+                    } else if (port.primary === false){
+                        port.healthcheck = "";
                     }
                 }
             });

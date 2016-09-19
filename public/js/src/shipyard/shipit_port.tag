@@ -263,12 +263,15 @@
      */
     setValue(input) {
         var name = input.target.name.replace('_' + self.port.name, '');
-        
-        if (input.target.value) {
+        if (input.target.value || name === 'healthcheck') {
             self.port[name] = input.target.value;
             self.parent.parent.update();
             self.port.value = parseInt(self.port.value);
-            RiotControl.trigger('port_value_changed', self.parent.container, self.port);
+            if (self.port.primary === true && !self.port.healthcheck) {
+                RiotControl.trigger('flash_message', 'Primary Ports must have a healthcheck.', 30000);
+            } else {
+                RiotControl.trigger('port_value_changed', self.parent.container, self.port);
+            }
         }
     }
 
