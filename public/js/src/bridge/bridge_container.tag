@@ -161,11 +161,6 @@
                     portNums++;
                 }
             });
-            if (portNums > 1 && !alerted.primary) {
-                RiotControl.trigger('flash_message', 'error', 'Cannot have more than one primary port across multiple containers.', 30000);
-                valid = false;
-                alerted.primary = true;
-            }
         });
 
         return valid;
