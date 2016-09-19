@@ -337,6 +337,7 @@ var utils = (function () {
                     hasHealthcheck = true;
 
                     if (port.primary === true && port.healthcheck !== envVar.value) {
+                        port.healthcheck = port.healthcheck || '/changeMe';
                         envVar.value = port.healthcheck;
                         envVar.add = false;
                         shouldSave.save = true;
