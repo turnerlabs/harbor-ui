@@ -412,7 +412,7 @@
             }
         });
 
-        if (count === total && view.helm.msg.toLowerString() === 'could not find product') {
+        if (count === total && view.helm.msg && view.helm.msg.toLowerCase() === 'could not find product') {
             // All replicas are zero, so we can delete
             self.disableShipmentBtn = '';
         } else {
@@ -526,7 +526,7 @@
                self.currentRoute += '/tabs-' + tab;
                setTimeout(function() {
                    $('#command_bridge_tabs').find('a[href="#tabs-' + tab + '"]').trigger('click');
-               }, 500);
+               }, 1000);
                if (tab === 'graphs') {
                    view.renderGraphs = true;
                }
