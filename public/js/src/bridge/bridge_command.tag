@@ -12,6 +12,7 @@
         </div>
     </div>
 
+    <bridge_lb_status></bridge_lb_status>
     <bridge_shipment_status></bridge_shipment_status>
 
     <copy_shipment_modal targetid="copyModal" shipment="{ shipment }"></copy_shipment_modal>
