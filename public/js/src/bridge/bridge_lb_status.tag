@@ -6,7 +6,7 @@
             <h5 each="{ status in statuses }">{ status }</h5>
             <p each="{ desc in descriptions }">{ desc }</p>
 
-            <div class="progress">
+            <div if="{ inProgress }" class="progress">
                 <div class="indeterminate"></div>
             </div>
         </div>
@@ -20,6 +20,7 @@
     self.interval     = null;
     self.statuses     = [];
     self.started      = false;
+    self.inProgress   = false;
     self.showStatus   = false;
     self.descriptions = [];
 
@@ -60,6 +61,14 @@
                 .map(function (val) { return val.description; })
                 .filter(function (val, idx, me) { return me.indexOf(val) === idx; });
 
+            self.inProgress = self.descriptions.reduce(function (prev, cur) {
+                if (cur.indexOf('in progress') !== -1) {
+                    return true;
+                } else {
+                    return prev;
+                }
+            }, false);
+
             self.interval = setTimeout(function () {
                 RiotControl.trigger('bridge_lb_status', self.shipment, self.environment, self.provider);
             }, self.wait);
@@ -69,7 +78,7 @@
     RiotControl.on('bridge_lb_status_start', function (shipment) {
         d('bridge/bridge_lb_status::bridge_lb_status_start', shipment);
         if (!self.started) {
-            configure(shipment)
+            configure(shipment);
 
             if (self.replicas > 0) {
                 RiotControl.trigger('bridge_lb_status', self.shipment, self.environment, self.provider);
