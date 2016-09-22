@@ -1,6 +1,6 @@
 {
   "name": "mss-harbor",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "A portal for creating and viewing Shipments",
   "main": "app.js",
   "scripts": {
