@@ -12,6 +12,7 @@
         </div>
     </div>
 
+    <bridge_lb_status></bridge_lb_status>
     <bridge_shipment_status></bridge_shipment_status>
 
     <copy_shipment_modal targetid="copyModal" shipment="{ shipment }"></copy_shipment_modal>
@@ -452,6 +453,8 @@
     });
 
     RiotControl.on('command_bridge_loaded', function (loaded) {
+        d('bridge/command::command_bridge_loaded', loaded)
+        RiotControl.trigger('bridge_lb_status_start', self.shipment);
         self.loading = !loaded;
         self.update();
     });
