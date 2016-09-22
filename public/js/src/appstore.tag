@@ -459,9 +459,15 @@ function AppStore(host, services) {
             accepts: 'application/json',
             data: {},
             success: function (result) {
+                d('BuildStore::build_shipment_trigger::success', result);
                 result = JSON.parse(result);
                 RiotControl.trigger('build_shipment_trigger_result', result);
                 RiotControl.trigger('flash_message', 'success', result.message);
+
+                if (result.elb_id) {
+                    d('BuildStore::build_shipment_trigger->bridge_lb_status');
+                    RiotControl.trigger('bridge_lb_status', shipment, environment, provider);
+                }
             },
             error: function (xhr, status, err) {
                 var error = xhr.responseText || err || 'Failed To Trigger Shipment!';
@@ -475,7 +481,7 @@ function AppStore(host, services) {
     });
 
     self.on('bridge_shipment_trigger', function (shipment, environment, location) {
-        d('BridgeStore::build_shipment_trigger', shipment, environment, location);
+        d('BridgeStore::bridge_shipment_trigger', shipment, environment, location);
 
         $.ajax({
             method: 'POST',
@@ -484,9 +490,15 @@ function AppStore(host, services) {
             accepts: 'application/json',
             data: {},
             success: function (result) {
+                d('BuildStore::bridge_shipment_trigger::success', result);
                 result = JSON.parse(result);
                 RiotControl.trigger('bridge_shipment_trigger_result', result);
                 RiotControl.trigger('flash_message', 'success', result.message);
+
+                if (result.elb_id) {
+                    d('BridgeStore::bridge_shipment_trigger->bridge_lb_status');
+                    RiotControl.trigger('bridge_lb_status', shipment, environment, location);
+                }
             },
             error: function (xhr, status, err) {
                 var error = xhr.responseText || err || 'Failed To Trigger Shipment!';
@@ -495,6 +507,26 @@ function AppStore(host, services) {
 
                 RiotControl.trigger('flash_message', 'error', error.message, 30000);
                 RiotControl.trigger('bridge_shipment_trigger_result', {}, error.message);
+            }
+        });
+    });
+
+    self.on('bridge_lb_status', function (shipment, environment, provider) {
+        d('BridgeStore::bridge_lb_status', shipment, environment, provider);
+
+        $.ajax({
+            method: 'GET',
+            url: mu(hosts.trigger, 'loadbalancer', 'status', shipment, environment, provider),
+            dataType: 'json',
+            accepts: 'application/json',
+            success: function (result, status, xhr) {
+                d('BridgeStore::bridge_lb_status::success');
+                RiotControl.trigger('bridge_lb_status_result', result);
+            },
+            error: function (xhr, status, err) {
+                var error = JSON.parse(xhr.responseText);
+                d('BridgeStore::bridge_lb_status::error', error);
+                RiotControl.trigger('flash_message', 'error', error.message, 1000 * 15);
             }
         });
     });

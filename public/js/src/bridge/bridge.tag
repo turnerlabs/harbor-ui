@@ -54,6 +54,7 @@
 
             self.page = page;
             RiotControl.trigger('command_bridge_enabled', page, shipment, environment, tab);
+            RiotControl.trigger('bridge_lb_status_stop');
             self.update();
         }
     });
