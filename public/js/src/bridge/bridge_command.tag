@@ -362,11 +362,20 @@
         }
 
         self.shipment.providers.forEach(function(provider) {
-            RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
+            var tooTrigger = true;
+            if (provider.replicas === 0) {
+              var question = confirm('Replicas are zero for provider: ' + provider.name + '. Triggering will Delete the running application and the LoadBalancer.');
+              if (question === false) {
+                  tooTrigger = false;
+              }
+            }
+            
+            if (tooTrigger) {
+                RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
+                self.triggering = true;
+                self.update();
+            }
         });
-
-        self.triggering = true;
-        self.update();
     }
 
     scaleShipment(evt) {
