@@ -6,7 +6,7 @@
             <label for="edit-btn-env-var">Edit mode</label>
         </div>
         <div class="col s2 right-align valign">
-            <button class="btn trigger-env-var-btn btn-disable" disabled onclick="{ triggerShipment }">Trigger</button>
+            <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
         </div>
     </div>
 

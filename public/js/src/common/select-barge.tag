@@ -1,5 +1,4 @@
 <select_barge>
-  <h5 class="left">Select Barge</h5>
   <div class="col s12 card blue-grey darken-1" if="{info !== false}">
       <div class="card-content white-text">
           Only select a Barge if you don't want to use the default Barge, <strong>{ defaultBarge }</strong>.
@@ -35,12 +34,12 @@
 
           if (!$('.barge-select').hasClass('select2-hidden-accessible') || currentBarge !== self.provider.barge) {
                currentBarge = self.provider.barge;
-               
+
                // push barge if not present on supplied barges list
                if (self.barges.indexOf(currentBarge) === -1) {
                    self.barges.push(currentBarge);
                }
-               
+
                setTimeout(function() {
                    $('.barge-select').select2();
                }, 100);
