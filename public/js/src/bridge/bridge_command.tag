@@ -34,7 +34,7 @@
         <div class="row">
             <div class="col s10">&nbsp;</div>
             <div class="col s2 right-align valign">
-                <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
+                <a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a>
             </div>
         </div>
 
@@ -379,7 +379,7 @@
                   tooTrigger = false;
               }
             }
-            
+
             if (tooTrigger) {
                 RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
                 self.triggering = true;
