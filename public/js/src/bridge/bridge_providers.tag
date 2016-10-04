@@ -1,28 +1,23 @@
 <bridge_providers>
-    <div class="row valign-wrapper">
-          <p class="col s4 valign">
-              <strong>Replicas:</strong>
-          </p>
-          <p class="col s4 valign"></p>
-          <p class="col s4 valign center-align">
-              <input
-                  class="replicas provider-{ service.provider }"
-                  value="{ service.replicas }"
-                  type="number"
-                  min="0"
-                  onchange="{ updateReplicas }"
-              />
-          </p>
-
-    </div>
-    <div class="row valign-wrapper">
-        <p class="col s4 valign">
-            <strong>Barge:</strong>
-        </p>
-        <p class="col s4 valign">{service.barge}</p>
-        <p class="col s4">
+    <div class="row">
+        <div class="col s3">
+            <p><strong>Barge:</strong></p>
+            <p>{ service.barge }</p>
+        </div>
+        <div class="col s6">
+            <p><strong>Select New Barge:</strong></p>
             <select_barge provider="{service}" callback="{updateBarge}" info="{false}"></select_barge>
-        </p>
+        </div>
+        <div class="col s3">
+            <p><strong>Replicas:</strong></p>
+            <p><input
+                class="replicas provider-{ service.provider }"
+                value="{ service.replicas }"
+                type="number"
+                min="0"
+                onchange="{ updateReplicas }"
+            /></p>
+        </div>
     </div>
 
     <script>
