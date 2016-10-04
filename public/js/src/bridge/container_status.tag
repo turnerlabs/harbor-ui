@@ -2,29 +2,32 @@
     <loading_elm if="{ !helm }"></loading_elm>
 
     <div if="{ !helm.error && helm.replicas.length }">
-        <table>
+        <table class="highlight">
             <thead>
                 <tr>
                     <th>Host</th>
                     <th>Replica</th>
                     <th>Phase</th>
                     <th>Container</th>
+                    <th>Image</th>
                     <th>State</th>
                     <th>Restarts</th>
                 </tr>
             </thead>
 
-            <tbody each="{replica in helm.replicas.sort(sortReplicas)}">
-                <tr each="{container in replica.containers.sort(sortContainers)}">
+            <tbody each="{ replica in helm.replicas.sort(sortReplicas) }">
+                <tr each="{ container in replica.containers.sort(sortContainers) }">
                     <td>{ replica.host }</td>
                     <td>{ replica.name }</td>
                     <td class="{ getColor(replica.phase) }">{ replica.phase }</td>
-                    <td>{ container.id.slice(0, 32) }</td>
+                    <td>{ container.id.slice(0, 7) }</td>
+                    <td>{ container.image }</td>
                     <td class="{ getColor(container.state )}">{ container.state }</td>
-                    <td class="{ checkRestarts(container.restartCount) }">{ container.restartCount }</td>
+                    <td class="{ checkRestarts(container.restartCount) } center">{ container.restartCount }</td>
                 </tr>
             </tbody>
         </table>
+
         <p>The Shipment status at times will show that the phase and state are running, but your
             Shipment isn't working the way you intended. This is because the information that is
             being displayed is how the orchestration backend is handling your Shipment. It does not
