@@ -31,6 +31,13 @@
     </div>
 
     <div id="tabs-overview">
+        <div class="row">
+            <div class="col s10">&nbsp;</div>
+            <div class="col s2 right-align valign">
+                <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
+            </div>
+        </div>
+
         <h4>Service</h4>
         <div class="row">
             <div each={ service in shipment.providers.map(getViewServices) }>
@@ -56,7 +63,7 @@
             </div>
         </div>
 
-        <h4>Replicas</h4>
+        <h4>Provider Information</h4>
         <div each={ service in shipment.providers.map(getViewServices) }>
             <bridge_providers shipment="{ parent.shipment }" service="{ service }"></bridge_providers>
         </div>
@@ -70,6 +77,9 @@
             </div>
             <button class="btn" onclick="{addProvider}">Add Ec2 as a Provider</button>
         </div>
+
+        <h4>Shipment Status</h4>
+        <container_status></container_status>
 
         <h4>Group</h4>
         <p>The group value of your Shipment impacts who is authorized to make edits to all Environments
@@ -362,11 +372,20 @@
         }
 
         self.shipment.providers.forEach(function(provider) {
-            RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
+            var tooTrigger = true;
+            if (provider.replicas === 0) {
+              var question = confirm('Replicas are zero for provider: ' + provider.name + '. Triggering will Delete the running application and the LoadBalancer.');
+              if (question === false) {
+                  tooTrigger = false;
+              }
+            }
+            
+            if (tooTrigger) {
+                RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
+                self.triggering = true;
+                self.update();
+            }
         });
-
-        self.triggering = true;
-        self.update();
     }
 
     scaleShipment(evt) {
