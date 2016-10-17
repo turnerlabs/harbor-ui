@@ -1,5 +1,5 @@
 {
-  "name": "mss-harbor",
+  "name": "harbor-ui",
   "version": "1.10.2",
   "description": "A portal for creating and viewing Shipments",
   "main": "app.js",
