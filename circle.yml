@@ -9,7 +9,7 @@ machine:
 dependencies:
   pre:
     - npm install
-    - npm rebuild
+    - npm run build
     - npm test
   override:
     - docker version
