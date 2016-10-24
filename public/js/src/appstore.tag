@@ -805,6 +805,32 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('roll_build_token', function (shipment, environment) {
+        d('BridgeStore::roll_build_token', shipment, environment);
+
+        $.ajax({
+            method: 'PUT',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment, 'environment', environment, 'buildToken'),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('BridgeStore::roll_build_token::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Build token rolled');
+                RiotControl.trigger('roll_build_token_result', result.buildToken);
+            },
+            error: function (xhr, status, err) {
+                d('BridgeStore::roll_build_token::error', xhr.responseText, err);
+                var error = xhr.responseText || err;
+                RiotControl.trigger('flash_message', 'error', error);
+            }
+        });
+    });
+
     self.on('create_container', function (shipment, environment, container, port) {
         d("BridgeStore::create_container", shipment, environment, container, port)
 
