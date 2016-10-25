@@ -1,17 +1,29 @@
 <add-variable>
     <div class="addConfigurationBox row">
         <div class="col s2">
-            <input type="checkbox"
-                   id="hidden_checkbox_{location}_{index}"
-                   onclick="{setHidden}"
-                   checked="{checked: hidden}" />
-            <label for="hidden_checkbox_{location}_{index}">Hidden:</label>
+            <input type="radio"
+                id="basic_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="basic"
+                class="with-gap" />
+            <label for="basic_radio_{location}_{index}">Basic</label>
 
-            <input type="checkbox"
-                id="discover_checkbox_{location}_{index}"
-                onclick="{setDiscover}"
-                checked="{checked: type == 'discover'}" />
-            <label for="discover_checkbox_{location}_{index}">Discover:</label>
+            <input type="radio"
+                id="hidden_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="hidden"
+                class="with-gap" />
+            <label for="hidden_radio_{location}_{index}">Hidden <i class="tiny material-icons" title="Hidden Env Var">lock</i></label>
+
+            <input type="radio"
+                id="discover_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="discover"
+                class="with-gap" />
+            <label for="discover_radio_{location}_{index}">Discover <i class="tiny material-icons" title="Hidden Env Var">visibility</i></label>
         </div>
         <div class="col s4">
             Key: <input type="text" name="configKey" placeholder="Variable Name" onkeyup="{ forceUppercase }" />
@@ -26,8 +38,7 @@
         var self = this,
             d = utils.debug;
 
-        self.hidden = false;
-        self.discover = false;
+        self.storedType;
 
         forceUppercase(evt) {
             var ele = $(evt.target),
@@ -42,50 +53,23 @@
                 envVar;
 
             if (key && value) {
-                envVar = {name: key.toUpperCase(), value: value, type: getType(self.type, self.hidden, self.discover)};
+                envVar = {name: key.toUpperCase(), value: value, type: self.storedType || 'basic'};
                 self.configKey.value = '';
                 self.configValue.value = '';
-            }
 
-            d('common/add-variable::addConfig', envVar, self.opts);
-            if (self.opts.where == 'shipyard') {
-                RiotControl.trigger('shipyard_add_envvar', envVar);
+                d('common/add-variable::addConfig', envVar, self.opts);
+                if (self.opts.where == 'shipyard') {
+                    RiotControl.trigger('shipyard_add_envvar', envVar);
+                } else {
+                    RiotControl.trigger('shipit_added_var', envVar, self.opts);
+                }
             } else {
-                RiotControl.trigger('shipit_added_var', envVar, self.opts);
+                alert("Key and Value are required values.")
             }
         }
 
-        setHidden(evt) {
-            toggleOther(evt.target.id);
-            self.hidden = !self.hidden;
-        }
-
-        setDiscover(evt) {
-            toggleOther(evt.target.id);
-            self.discover = !self.discover;
-        }
-
-        function toggleOther(id) {
-            var parts = id.split('_'),
-                type = parts[0] == 'hidden' ? 'discover' : 'hidden',
-                loc = parts[2],
-                idx = parts[3],
-                other = $('#' + [type, 'checkbox', loc, idx].join('_')),
-                checked = other.prop('checked');
-
-            if (checked) {
-                other.prop('checked', false);
-            }
-        }
-
-        function getType(type, hidden, discover) {
-            if (hidden) {
-                return 'hidden';
-            } else if (discover) {
-                return 'discover';
-            } else {
-                return 'basic';
-            }
+        setType(evt) {
+            self.storedType = $(evt.target).val();
         }
 
         self.on('update', function() {
