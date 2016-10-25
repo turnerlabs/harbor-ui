@@ -64,7 +64,9 @@
             return;
         }
 
-        self.lines = self.logs.join('');
+        if (Array.isArray(self.logs)) {
+            self.lines = self.logs.join('');
+        }
 
         self.update();
     });
