@@ -308,7 +308,6 @@ function AppStore(host, services) {
             error: function (xhr, status, err) {
                 var error = xhr.responseText || err;
                 d('APIStore::update_logs::error', error);
-                RiotControl.trigger('flash_message', 'error', error, 30000);
             }
         });
     });

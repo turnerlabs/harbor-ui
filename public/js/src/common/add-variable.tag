@@ -1,11 +1,29 @@
 <add-variable>
     <div class="addConfigurationBox row">
         <div class="col s2">
-            <input type="checkbox"
-                   id="hidden_checkbox_{location}_{index}"
-                   onclick="{setHidden}"
-                   checked="{checked: hidden}" />
-            <label for="hidden_checkbox_{location}_{index}">Hidden:</label>
+            <input type="radio"
+                id="basic_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="basic"
+                class="with-gap" />
+            <label for="basic_radio_{location}_{index}">Basic</label>
+
+            <input type="radio"
+                id="hidden_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="hidden"
+                class="with-gap" />
+            <label for="hidden_radio_{location}_{index}">Hidden <i class="tiny material-icons" title="Hidden Env Var">lock</i></label>
+
+            <input type="radio"
+                id="discover_radio_{location}_{index}"
+                name="radio_{location}_{index}"
+                onclick="{setType}"
+                value="discover"
+                class="with-gap" />
+            <label for="discover_radio_{location}_{index}">Discover <i class="tiny material-icons" title="Hidden Env Var">visibility</i></label>
         </div>
         <div class="col s4">
             Key: <input type="text" name="configKey" placeholder="Variable Name" onkeyup="{ forceUppercase }" />
@@ -20,7 +38,7 @@
         var self = this,
             d = utils.debug;
 
-        self.hidden = false;
+        self.storedType;
 
         forceUppercase(evt) {
             var ele = $(evt.target),
@@ -35,21 +53,23 @@
                 envVar;
 
             if (key && value) {
-                envVar = {name: key.toUpperCase(), value: value, type: self.hidden ? 'hidden' : self.type};
+                envVar = {name: key.toUpperCase(), value: value, type: self.storedType || 'basic'};
                 self.configKey.value = '';
                 self.configValue.value = '';
-            }
 
-            d('common/add-variable::addConfig', envVar, self.opts);
-            if (self.opts.where == 'shipyard') {
-                RiotControl.trigger('shipyard_add_envvar', envVar);
+                d('common/add-variable::addConfig', envVar, self.opts);
+                if (self.opts.where == 'shipyard') {
+                    RiotControl.trigger('shipyard_add_envvar', envVar);
+                } else {
+                    RiotControl.trigger('shipit_added_var', envVar, self.opts);
+                }
             } else {
-                RiotControl.trigger('shipit_added_var', envVar, self.opts);
+                alert("Key and Value are required values.")
             }
         }
 
-        setHidden(evt) {
-          self.hidden = !self.hidden;
+        setType(evt) {
+            self.storedType = $(evt.target).val();
         }
 
         self.on('update', function() {
