@@ -308,7 +308,6 @@ function AppStore(host, services) {
             error: function (xhr, status, err) {
                 var error = xhr.responseText || err;
                 d('APIStore::update_logs::error', error);
-                RiotControl.trigger('flash_message', 'error', error, 30000);
             }
         });
     });
@@ -801,6 +800,32 @@ function AppStore(host, services) {
                 var error = xhr.responseText || err;
                 d('datadog::datadog_create_embed:error', error);
                 RiotControl.trigger('datadog_create_embed_result', {}, error);
+            }
+        });
+    });
+
+    self.on('roll_build_token', function (shipment, environment) {
+        d('BridgeStore::roll_build_token', shipment, environment);
+
+        $.ajax({
+            method: 'PUT',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment, 'environment', environment, 'buildToken'),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('BridgeStore::roll_build_token::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Build token rolled');
+                RiotControl.trigger('roll_build_token_result', result.buildToken);
+            },
+            error: function (xhr, status, err) {
+                d('BridgeStore::roll_build_token::error', xhr.responseText, err);
+                var error = xhr.responseText || err;
+                RiotControl.trigger('flash_message', 'error', error);
             }
         });
     });

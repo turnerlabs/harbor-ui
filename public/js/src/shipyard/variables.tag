@@ -15,7 +15,7 @@
                 <div each="{provider,i in shipment.providers}">
                     <div class="col s3">REPLICAS</div>
                     <div class="col s9">
-                        <input type="number" class="required" name="{i}" value={ provider.replicas } onblur={ parseReplicas } min="1" required />
+                        <input type="number" class="required" name="{i}" value={ provider.replicas } onblur={ parseReplicas } min="2" required />
                     </div>
                     <select_barge provider="{provider}" callback="{saveState}"></select_barge>
                 </div>

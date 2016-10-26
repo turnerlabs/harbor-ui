@@ -2,6 +2,7 @@
     <div class="valign-wrapper">
         <div class="col s3 valign" if={ key }>
             <i if="{ var_type == 'hidden' }" class="tiny material-icons" title="Hidden Env Var">lock</i>
+            <i if="{ var_type == 'discover' }" class="tiny material-icons" title="Discover Env Var">visibility</i>
             { key }
         </div>
         <div class="col s8 valign" if={ val }>

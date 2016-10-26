@@ -105,7 +105,8 @@
             <p class="col s10"><a href="{ view.erp }" target="_blank">{ view.erp }</a></p>
 
             <p class="col s2" if="{ shipment.buildToken }">Build Token</p>
-            <p class="col s10" if="{ shipment.buildToken }">{ shipment.buildToken }</p>
+            <p class="col s7" if="{ shipment.buildToken }">{ shipment.buildToken }</p>
+            <p class="col s3 right-align" if="{ shipment.buildToken }"><button class="btn" onclick="{ rollToken }">Roll token</button></p>
         </div>
 
         <div class="row valign-wrapper">
@@ -417,6 +418,12 @@
         }
     }
 
+    rollToken(evt) {
+        if (confirm('Are you sure? Rolling a build token is a permanent action and cannot be undone.')) {
+            RiotControl.trigger('roll_build_token', self.shipment.parentShipment.name, self.shipment.name);
+        }
+    }
+
     function checkDeleteButton() {
 
         if (!self.shipment || !view.helm) {
@@ -572,6 +579,12 @@
         }
 
         RiotControl.trigger('shipit_update_value', url, container, addContainer ? 'POST' : 'PUT');
+        self.update();
+    });
+
+    RiotControl.on('roll_build_token_result', function (token) {
+        d('bridge/command::roll_build_token_result', token);
+        self.shipment.buildToken = token;
         self.update();
     });
 
