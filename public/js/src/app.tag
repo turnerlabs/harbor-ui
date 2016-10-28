@@ -31,7 +31,6 @@
                             <buildit if={ route === 'buildit'} />
                             <shipyard if={ route === 'shipyard'} />
                             <bridge if={ route === 'bridge'} />
-                            <lighthouse if={ route === 'lighthouse'} />
                         </div>
                     </div>
                 </div>
@@ -40,25 +39,20 @@
             <footer class="page-footer grey lighten-2">
                 <div class="container grey-text text-darken-1">
                       <div class="row left-pad">
-                          <div class="col s3">
+                          <div class="col s4">
                               <h5>BuildIt</h5>
                               <p class="footer-box">Build Docker images from any git repo.</p>
                               <p><a class="btn" href="#buildit">BuildIt</a></p>
                           </div>
-                          <div class="col s3">
+                          <div class="col s4">
                               <h5>Shipyard</h5>
                               <p class="footer-box">The Shipyard allows you to walk through creating a new Shipment.</p>
                               <p><a class="btn" href="#shipyard/info">Shipyard</a></p>
                           </div>
-                          <div class="col s3">
+                          <div class="col s4">
                               <h5>Command Bridge</h5>
                               <p class="footer-box">View and modify running Shipments.</p>
                               <p><a class="btn" href="#bridge">Command Bridge</a></p>
-                          </div>
-                          <div class="col s3">
-                              <h5>Lighthouse</h5>
-                              <p class="footer-box">Gain insight into costs of Barges and Shipments.</p>
-                              <p><a class="btn" href="#lighthouse">Lighthouse</a></p>
                           </div>
                       </div>
                 </div>
