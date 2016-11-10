@@ -296,6 +296,32 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('bridge_delete_parent_shipment', function (shipment) {
+        d('ShipItStore::bridge_delete_parent_shipment', shipment);
+
+        $.ajax({
+            method: 'DELETE',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('ShipItStore::bridge_delete_parent_shipment::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Deleted Parent Shipment');
+                RiotControl.trigger('bridge_delete_parent_shipment_result', shipment);
+            },
+            error: function (xhr, status, err) {
+                var error = JSON.parse(xhr.responseText).error || err || 'Failed to delete parent Shipment: '+ shipment;
+                d('ShipItStore::bridge_delete_parent_shipment::error', shipment, error);
+                RiotControl.trigger('flash_message', 'error', 'Failed to delete parent Shipment ('+ error +')');
+            }
+        });
+    });
+
     self.on('update_logs', function (customer, shipment, environment) {
         d('APIStore::update_logs', customer, shipment, environment);
 

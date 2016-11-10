@@ -23,6 +23,9 @@
                                 <ul class="link-list">
                                     <li each={ environment in shipment.environments } class="indented"><a href="#bridge/{ parent.shipment.name }/{ environment }">{ environment }</a></li>
                                 </ul>
+                                <p if="{ !shipment.environments.length || shipment.environments.length == 0 }">
+                                    <a class="btn" onclick="{ deleteParentShipment }" data-shipment="{ shipment.name }">Delete Shipment</a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -96,6 +99,12 @@
         $(name).slideToggle({ easing: 'linear' });
     }
 
+    deleteParentShipment(evt) {
+        var shipment = $(evt.target).attr('data-shipment');
+        d('bridge/shipment_list::deleteParentShipment', shipment);
+        RiotControl.trigger('bridge_delete_parent_shipment', shipment);
+    }
+
     self.on('mount', function () {
         d('bridge/shipment_list::mount');
 
@@ -104,6 +113,21 @@
             self.loading = true;
             self.update();
         }
+    });
+
+    RiotControl.on('bridge_delete_parent_shipment_result', function (result) {
+        d('bridge/shipment_list::bridge_delete_parent_shipment_result', result);
+        var nowShipments = self.allowedShipments.map(function (group) {
+            var shipments = group.shipments.filter(function (shipment) {
+                if (shipment.name !== result) {
+                    return shipment;
+                }
+            });
+            group.shipments = shipments;
+            return group;
+        });
+        self.allowedShipments = nowShipments;
+        self.update();
     });
 
     RiotControl.on('shipment_list_filtered', function (list) {
