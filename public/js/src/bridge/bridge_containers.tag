@@ -1,12 +1,11 @@
 <bridge_containers>
     <div class="row valign-wrapper">
-        <div class="col s8">&nbsp;</div>
-        <div class="col s2 right-align valign">
-            <input type="checkbox" id="edit-btn-containers" onclick="{ toggleEditMode }"/>
-            <label for="edit-btn-containers">Edit mode</label>
+        <div class="col s8 right-align valign">
+            <a onclick="{ viewChanges }">View Changes</a>
         </div>
-        <div class="col s2 right-align valign">
-            <button class="btn trigger-containers-btn" onclick="{ triggerShipment }">Trigger</button>
+        <div class="col s4 right-align valign">
+            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ saveChanges }">Save</button>
         </div>
     </div>
 
@@ -40,7 +39,7 @@
         d = utils.debug;
 
     self.newContainer = {};
-    self.onlyread = true;
+    self.onlyread = false;
 
     toggleEditMode(evt) {
         d('bridge/containers::toggleEditMode');
@@ -57,15 +56,25 @@
         self.shipment.providers.forEach(function(provider) {
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
-
-        self.triggering = true;
-        self.update();
     }
 
     addContainer(evt) {
         d('bridge_containers::addContainer');
         RiotControl.trigger('get_containers');
     }
+
+    viewChanges(evt) {
+        RiotControl.trigger('show_changes_panel');
+    }
+
+    RiotControl.on('bridge_shipment_is_triggering', function (result) {
+        self.triggering = result;
+        self.update();
+    });
+
+    RiotControl.on('bridge_have_changes_result', function (result) {
+        self.haveChanges = result;
+    });
 
     RiotControl.on('container_created', function (container, port) {
         d('bridge_containers::container_created', container, port);

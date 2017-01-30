@@ -1,12 +1,11 @@
 <bridge_env_vars>
-    <div class="row">
-        <div class="col s8">&nbsp;</div>
-        <div class="col s2 right-align valign">
-            <input type="checkbox" id="edit-btn-env-var" onclick="{ toggleEditMode }"/>
-            <label for="edit-btn-env-var">Edit mode</label>
+    <div class="row valign-wrapper">
+        <div class="col s8 right-align valign">
+            <a onclick="{ viewChanges }">View Changes</a>
         </div>
-        <div class="col s2 right-align valign">
-            <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
+        <div class="col s4 right-align valign">
+            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ saveChanges }">Save</button>
         </div>
     </div>
 
@@ -88,7 +87,12 @@
     var self = this,
         d = utils.debug;
 
-    self.onlyread = true;
+    self.onlyread = false;
+
+    saveChanges(evt) {
+        d('bridge/envVars::saveChanges');
+        RiotControl.trigger('shipit_save_changes');
+    }
 
     toggleEditMode(evt) {
         d('bridge/envVars::toggleEditMode');
@@ -106,9 +110,10 @@
         self.shipment.providers.forEach(function(provider) {
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
+    }
 
-        self.triggering = true;
-        self.update();
+    viewChanges(evt) {
+        RiotControl.trigger('show_changes_panel');
     }
 
     function getUrl(key, opts) {
@@ -131,6 +136,15 @@
 
         return url;
     }
+
+    RiotControl.on('bridge_shipment_is_triggering', function (result) {
+        self.triggering = result;
+        self.update();
+    });
+
+    RiotControl.on('bridge_have_changes_result', function (result) {
+        self.haveChanges = result;
+    });
 
     RiotControl.on('shipit_added_var', function(envVar, opts) {
         d('bridge/bridge_env_vars::shipit_added_var', envVar, opts);

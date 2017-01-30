@@ -31,10 +31,13 @@
     </div>
 
     <div id="tabs-overview">
-        <div class="row">
-            <div class="col s10">&nbsp;</div>
-            <div class="col s2 right-align valign">
-                <a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a>
+        <div class="row valign-wrapper">
+            <div class="col s8 right-align valign">
+                <a onclick="{ viewChanges }">View Changes</a>
+            </div>
+            <div class="col s4 right-align valign">
+                <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
+                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ saveChanges }">Save</button>
             </div>
         </div>
 
@@ -386,7 +389,6 @@
 
             if (tooTrigger) {
                 RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
-                self.triggering = true;
                 self.update();
             }
         });
@@ -427,6 +429,10 @@
         }
     }
 
+    viewChanges(evt) {
+        RiotControl.trigger('show_changes_panel');
+    }
+
     function checkDeleteButton() {
 
         if (!self.shipment || !view.helm) {
@@ -452,8 +458,8 @@
         d('bridge/command/overview::checkDeleteButton `%s`', self.disableShipmentBtn);
     }
 
-    RiotControl.on('bridge_shipment_trigger_result', function(result, err) {
-        self.triggering = false;
+    RiotControl.on('bridge_shipment_is_triggering', function (result) {
+        self.triggering = result;
         self.update();
     });
 
@@ -462,11 +468,17 @@
         self.update();
     });
 
+    RiotControl.on('bridge_have_changes_result', function (result) {
+        self.haveChanges = result;
+        self.update();
+    });
+
     self.on('mount', function () {
         d('bridge/command::mount');
 
         RiotControl.trigger('retrieve_state');
         RiotControl.trigger('get_containers');
+        RiotControl.trigger('bridge_have_changes');
 
         setTimeout(function () {
             $('#command_bridge_tabs').tabs();
