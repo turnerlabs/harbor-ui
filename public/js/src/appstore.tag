@@ -379,11 +379,7 @@ function AppStore(host, services) {
             status: 'prep',
             headers: {
                 'x-username': ArgoAuth.getUser(),
-                'x-token': function () {
-                    var n = Math.round(Math.random());
-                    d('change %s', n, url);
-                    return n % 2 ? ArgoAuth.getToken() : 'fake';
-                }()
+                'x-token': ArgoAuth.getToken()
             }
         };
 
