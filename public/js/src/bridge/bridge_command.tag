@@ -22,41 +22,38 @@
             <h2>{ shipment.parentShipment.name } :: { shipment.name }</h2>
         </div>
         <div class="col s3 valign">
-            <p>Pick another Environment<br/><select class="bridge-environment-select" onchange={ pickEnvironment } style="width: 100%">
-                <option each={ environments }
-                        selected={ name === this.parent.shipment.name }
-                        value={ path }>{ name }</option>
+            <p>Pick another Environment<br/><select class="bridge-environment-select" onchange="{ pickEnvironment  }" style="width: 100%">
+                <option each="{ environments  }"
+                        selected="{ name === this.parent.shipment.name  }"
+                        value="{ path }">{ name }</option>
             </select></p>
         </div>
     </div>
 
     <div id="tabs-overview">
         <div class="row valign-wrapper">
-            <div class="col s8 right-align valign">
-                <a onclick="{ viewChanges }">View Changes</a>
-            </div>
-            <div class="col s4 right-align valign">
+            <div class="col s12 right-align valign">
                 <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ saveChanges }">Save</button>
+                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Save</button>
             </div>
         </div>
 
         <h4>Service</h4>
         <div class="row">
-            <div each={ service in shipment.providers.map(getViewServices) }>
-                <div each={ link in service.links }>
+            <div each="{ service in shipment.providers.map(getViewServices) }">
+                <div each="{ link in service.links }">
                     <p class="col s2">{ service.provider } ({ link.proto })</p>
-                    <p if={ link.linkable} class="col s10"><a href="{ link.href }" target="_blank">{ link.href }</a></p>
-                    <p if={ !link.linkable } class="col s10">{ link.href }</p>
+                    <p if="{ link.linkable }" class="col s10"><a href="{ link.href }" target="_blank">{ link.href }</a></p>
+                    <p if="{ !link.linkable }" class="col s10">{ link.href }</p>
                 </div>
             </div>
         </div>
 
         <h4>Container Versions</h4>
-        <div each={ container, idx in shipment.containers }>
+        <div each="{ container, idx in shipment.containers }">
             <bridge_container_version container="{ container }" idx="{ idx }"></bridge_container_version>
         </div>
-        <div if={ shipment.containers.length < 1 }>
+        <div if="{ shipment.containers.length < 1 }">
             <div class="card amber">
                 <div class="card-content black-text">
                     <span class="card-title">Warning</span>
@@ -67,10 +64,10 @@
         </div>
 
         <h4>Provider Information</h4>
-        <div each={ service in shipment.providers.map(getViewServices) }>
+        <div each="{ service in shipment.providers.map(getViewServices) }">
             <bridge_providers shipment="{ parent.shipment }" service="{ service }"></bridge_providers>
         </div>
-        <div if={ shipment.providers.length < 1 }>
+        <div if="{ shipment.providers.length < 1 }">
             <div class="card amber">
                 <div class="card-content black-text">
                     <span class="card-title">Warning</span>
@@ -78,7 +75,7 @@
                         must have at least one Provider to be able to be run.</p>
                 </div>
             </div>
-            <button class="btn" onclick="{addProvider}">Add Ec2 as a Provider</button>
+            <button class="btn" onclick="{ addProvider }">Add Ec2 as a Provider</button>
         </div>
 
         <h4>Shipment Status</h4>
@@ -92,9 +89,9 @@
             <p class="col s4 valign"></p>
             <p class="col s4">
                 <select class="group-select" style="width: 100%" onchange="{ pickGroup }">
-                    <option each={ group in groups }
+                    <option each="{ group in groups }"
                             selected="{ group.name == parent.shipment.parentShipment.group }"
-                            value={ group.name }>{ group.name }</option>
+                            value="{ group.name }">{ group.name }</option>
                 </select>
             </p>
         </div>
@@ -114,7 +111,7 @@
 
         <div class="row valign-wrapper">
             <p class="col s4 valign">
-                <a id="delete-shipment-button" class="btn red {disableShipmentBtn}" onclick="{ deleteShipment }" title="Will permanently delete Shipment">Delete</a>
+                <a id="delete-shipment-button" class="btn red { disableShipmentBtn }" onclick="{ deleteShipment }" title="Will permanently delete Shipment">Delete</a>
                 <br><span class="grey-text text-lighten-1">Replicas must be set to zero and triggered to be able to delete a Shipment.</span>
             </p>
             <p class="col s4">&nbsp;</p>
@@ -133,13 +130,13 @@
 
     <div id="tabs-cmds">
         <div class="row">
-            <div if="{loading === false && !view.helm.error}" class="col s12" each="{container in shipment.containers}">
-                <h4>{container.name}</h4>
+            <div if="{ loading === false && !view.helm.error }" class="col s12" each="{ container in shipment.containers }">
+                <h4>{ container.name }</h4>
                 <ssh helm="{ view.helm }" container="{ container.name }" shipment="{ shipment }"></ssh>
             </div>
-            <div if="{view.helm.error}">
+            <div if="{ view.helm.error }">
                 <h4>There are no running instances of this shipment.</h4>
-                <p>{view.helm.msg}</p>
+                <p>{ view.helm.msg }</p>
             </div>
         </div>
     </div>
@@ -148,27 +145,27 @@
         <div class="row">
             <div class="col s3">
                 <p>Data Refresh Interval<br>
-                    <select class="interval-select" onchange={ updateMultiplier } style="width: 100%">
-                        <option selected={ multiplier == 'stop' } value="stop">Stop</option>
-                        <option selected={ multiplier == 1 } value="1">1</option>
-                        <option selected={ multiplier == 5 } value="5">5</option>
-                        <option selected={ multiplier == 10 } value="10">10</option>
-                        <option selected={ multiplier == 20 } value="20">20</option>
-                        <option selected={ multiplier == 30 } value="30">30</option>
+                    <select class="interval-select" onchange="{ updateMultiplier }" style="width: 100%">
+                        <option selected="{ multiplier == 'stop' }" value="stop">Stop</option>
+                        <option selected="{ multiplier == 1 }" value="1">1</option>
+                        <option selected="{ multiplier == 5 }" value="5">5</option>
+                        <option selected="{ multiplier == 10 }" value="10">10</option>
+                        <option selected="{ multiplier == 20 }" value="20">20</option>
+                        <option selected="{ multiplier == 30 }" value="30">30</option>
                     </select></p>
             </div>
-            <div if="{ !loading && !view.helm.error }" class="col s12" each="{replica in view.helm.replicas.sort(sortReplicas)}">
-                <div class="col s12" each="{container in replica.containers.sort(sortContainers)}">
-                    <h4>Container: {container.name}</h4>
-                    <h5>Provider: {replica.provider}</h5>
-                    <p>Host: {replica.host}</p>
-                    <p>ID: {container.id}</p>
+            <div if="{ !loading && !view.helm.error }" class="col s12" each="{ replica in view.helm.replicas.sort(sortReplicas) }">
+                <div class="col s12" each="{ container in replica.containers.sort(sortContainers) }">
+                    <h4>Container: { container.name }</h4>
+                    <h5>Provider: { replica.provider }</h5>
+                    <p>Host: { replica.host }</p>
+                    <p>ID: { container.id }</p>
                     <logging logs="{ container.logs }" loggerId="{ container.id }"></logging>
                 </div>
             </div>
             <div if="{ view.helm.error }">
                 <h4>There are no running instances of this shipment.</h4>
-                <p>{view.helm.msg}</p>
+                <p>{ view.helm.msg }</p>
             </div>
         </div>
     </div>
@@ -177,21 +174,21 @@
         <div class="row" if="{ view.renderGraphs }">
             <div class="col s6">
                 <span>
-                    <input name="group1" type="radio" id="1_hour" checked="{checked: view.timeframe === '1_hour'}" onclick="{setTimeframe}" />
+                    <input name="group1" type="radio" id="1_hour" checked="{ checked: view.timeframe === '1_hour' }" onclick="{ setTimeframe }" />
                     <label for="1_hour">Last 1 Hour</label>
                 </span>
                 <span>
-                    <input name="group1" type="radio" id="4_hours" checked="{checked: view.timeframe === '4_hours'}" onclick="{setTimeframe}" />
+                    <input name="group1" type="radio" id="4_hours" checked="{ checked: view.timeframe === '4_hours' }" onclick="{ setTimeframe }" />
                     <label for="4_hours">Last 4 Hours</label>
                 </span>
                 <span>
-                    <input name="group1" type="radio" id="1_day" checked="{checked: view.timeframe === '1_day'}" onclick="{setTimeframe}" />
+                    <input name="group1" type="radio" id="1_day" checked="{ checked: view.timeframe === '1_day' }" onclick="{ setTimeframe }" />
                     <label for="1_day">Last 24 Hours</label>
                 </span>
             </div>
             <div class="col s6 right-align">
                 Visit your
-                    <a target="_blank" href="{datadogLink}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}">
+                    <a target="_blank" href="{ datadogLink }&tpl_var_environment={ shipment.name }&tpl_var_shipment={ shipment.parentShipment.name }-{ shipment.name }&tpl_var_product={ shipment.parentShipment.name }">
                         DataDog Dashboard</a>.
             </div>
         </div>
@@ -205,7 +202,7 @@
         </div>
     </div>
 
-    <loading_elm if={ loading || view.datadogLoading } isloading="{ loading || view.datadogLoading }"></loading_elm>
+    <loading_elm if="{ loading || view.datadogLoading }" isloading="{ loading || view.datadogLoading }"></loading_elm>
 
     <script>
     var self = this,
@@ -213,7 +210,6 @@
         config = window.config,
         view = {
             editText: 'Edit',
-            onlyread: true,
             timeframe: '4_hours'
         },
         routed = false,
@@ -257,7 +253,7 @@
             url = self.shipment.parentShipment.name;
 
         self.shipment.parentShipment.group = val;
-        RiotControl.trigger('shipit_update_value', url, {group: val}, 'PUT');
+        RiotControl.trigger('shipit_update_value', url, { group: val }, 'PUT');
         self.update();
     }
 
@@ -292,7 +288,7 @@
             }
         }
 
-        RiotControl.trigger('shipit_update_value', url, {replicas: parseInt(evt.target.value)}, 'PUT');
+        RiotControl.trigger('shipit_update_value', url, { replicas: parseInt(evt.target.value) }, 'PUT');
         self.update();
     }
 
@@ -317,20 +313,6 @@
         }
     }
 
-    editShipment(evt) {
-        view.onlyread = !view.onlyread;
-
-        if (!view.onlyread) {
-            view.editText = 'View';
-        } else {
-            view.editText = 'Edit';
-        }
-
-        $('#command_bridge_tabs').find('a[href="#tabs-info"]').trigger('click');
-
-        self.update();
-    }
-
     getViewServices(provider) {
 
         if (!self.shipment) {
@@ -345,8 +327,8 @@
             links: []
         };
 
-        self.shipment.containers.forEach(function(container) {
-            container.ports.forEach(function(port) {
+        self.shipment.containers.forEach(function (container) {
+            container.ports.forEach(function (port) {
                 var link = {};
                 if (port.protocol === 'http' || port.protocol === 'https') {
                     link.linkable = true;
@@ -378,7 +360,7 @@
             return;
         }
 
-        self.shipment.providers.forEach(function(provider) {
+        self.shipment.providers.forEach(function (provider) {
             var tooTrigger = true;
             if (provider.replicas === 0) {
               var question = confirm('Replicas are zero for provider: ' + provider.name + '. Triggering will Delete the running application and the LoadBalancer.');
@@ -399,7 +381,7 @@
             return;
         }
 
-        self.shipment.providers.forEach(function(provider) {
+        self.shipment.providers.forEach(function (provider) {
             RiotControl.trigger('bridge_shipment_scale', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
 
@@ -442,7 +424,7 @@
         var total = self.shipment.providers.length,
             count = 0;
 
-        self.shipment.providers.forEach(function(provider) {
+        self.shipment.providers.forEach(function (provider) {
             if (provider.replicas === 0) {
                 count++;
             }
@@ -463,7 +445,7 @@
         self.update();
     });
 
-    RiotControl.on('bridge_shipment_scale_result', function(result, err) {
+    RiotControl.on('bridge_shipment_scale_result', function (result, err) {
         self.scaling = false;
         self.update();
     });
@@ -503,7 +485,7 @@
     RiotControl.on('get_shipment_environments_result', function (environments) {
         d('bridge/command::get_shipment_environments_result', environments);
         self.environments = environments;
-        setTimeout(function () { $('.bridge-environment-select').select2({val: self.shipment.name}); }, 1000);
+        setTimeout(function () { $('.bridge-environment-select').select2({ val: self.shipment.name }); }, 1000);
         self.update();
     });
 
@@ -531,7 +513,6 @@
         d('bridge/command::get_shipment_details_result', shipment);
         self.shipment = shipment;
         view.editText = 'Edit';
-        view.onlyread = true;
         var barge = utils.getBarge(shipment);
         setDataDogData();
         RiotControl.trigger('command_bridge_loaded', true);
@@ -543,12 +524,12 @@
           RiotControl.trigger('get_shipment_status', self.shipment);
         }
         self.update();
-        setTimeout(function() {
+        setTimeout(function () {
           $('.group-select').select2();
         }, 100);
     });
 
-    RiotControl.on('datadog_create_embed_result', function(data) {
+    RiotControl.on('datadog_create_embed_result', function (data) {
         d('datadog_create_embed_result', data);
         view.datadogLoading = false;
         if (!view.datadog_data[data.timeframe]) {
@@ -568,7 +549,7 @@
 
             if (tab) {
                self.currentRoute += '/tabs-' + tab;
-               setTimeout(function() {
+               setTimeout(function () {
                    $('#command_bridge_tabs').find('a[href="#tabs-' + tab + '"]').trigger('click');
                }, 1000);
                if (tab === 'graphs') {
@@ -581,7 +562,7 @@
         }
     });
 
-    RiotControl.on('set_container', function(container, addContainer) {
+    RiotControl.on('set_container', function (container, addContainer) {
         if (!routed) {
             return true;
         }
@@ -640,7 +621,7 @@
         view.datadog_data = {};
 
         view.datadogLoading = true;
-        datadog_data.forEach(function(data) {
+        datadog_data.forEach(function (data) {
             RiotControl.trigger('datadog_create_embed', data, data.timeframe);
         });
     }
@@ -653,7 +634,7 @@
                   viz: "timeseries",
                   requests: [
                     {
-                      q: "max:kubernetes.cpu.usage.total{kube_environment:" + environment + ",kube_name:" + name + "} by {container_name}",
+                      q: "max:kubernetes.cpu.usage.total{kube_environment:" + environment + ",kube_name:" + name + "} by { container_name }",
                       aggregator: "avg",
                       conditional_formats: [],
                       type: "area"
@@ -721,13 +702,13 @@
         graphs.push(elbRequestCount);
         graphs.push(cpu);
         graphs.push(memory);
-        var graphs1Hour = graphs.map(function(data) {
+        var graphs1Hour = graphs.map(function (data) {
             var newData = JSON.parse(JSON.stringify(data));
             newData.title = data.title.replace('(last 4 hours)', '(last 1 hour)');
             newData.timeframe = '1_hour';
             return newData;
         });
-        var graphs1Day = graphs.map(function(data) {
+        var graphs1Day = graphs.map(function (data) {
             var newData = JSON.parse(JSON.stringify(data));
             newData.title = data.title.replace('(last 4 hours)', '(last 24 hours)');
             newData.timeframe = '1_day';

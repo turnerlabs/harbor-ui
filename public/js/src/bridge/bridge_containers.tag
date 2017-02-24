@@ -1,20 +1,17 @@
 <bridge_containers>
     <div class="row valign-wrapper">
-        <div class="col s8 right-align valign">
-            <a onclick="{ viewChanges }">View Changes</a>
-        </div>
-        <div class="col s4 right-align valign">
+        <div class="col s12 right-align valign">
             <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ saveChanges }">Save</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Save</button>
         </div>
     </div>
 
     <div class="row" each="{ container, i in shipment.containers }">
         <div class="col s12">
-            <bridge_container container="{ container }" onlyread="{onlyread}"/>
+            <bridge_container container="{ container }"/>
         </div>
     </div>
-    <div if={ shipment.containers.length < 1 }>
+    <div if="{ shipment.containers.length < 1 }">
         <div class="card amber">
             <div class="card-content black-text">
                 <span class="card-title">Warning</span>
@@ -26,7 +23,7 @@
 
     <div class="row">
         <div class="col s12">
-            <button class="btn add-containers-btn btn-disable modal-trigger" data-target="container-modal" disabled={ onlyread } onclick="{ addContainer }">Add Container</button>
+            <button class="btn add-containers-btn btn-disable modal-trigger" data-target="container-modal" onclick="{ addContainer }">Add Container</button>
         </div>
     </div>
 
@@ -39,13 +36,6 @@
         d = utils.debug;
 
     self.newContainer = {};
-    self.onlyread = false;
-
-    toggleEditMode(evt) {
-        d('bridge/containers::toggleEditMode');
-        self.onlyread = !self.onlyread;
-        RiotControl.trigger('bridge_container_toggle_edit_mode', self.onlyread);
-    }
 
     triggerShipment(evt) {
         d('bridge/bridge_containers::triggerShipment');
@@ -53,7 +43,7 @@
             return;
         }
 
-        self.shipment.providers.forEach(function(provider) {
+        self.shipment.providers.forEach(function (provider) {
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
     }

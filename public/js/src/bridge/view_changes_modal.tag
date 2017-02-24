@@ -3,9 +3,10 @@
         <div class="modal-content">
             <h4>Changes</h4>
             <ul class="collection" if="{ changes.length }">
-                <li class="collection-item" each="{ change in changes }">
+                <li class="collection-item type-{ change.status }" each="{ change in changes }">
+                    <h5 if="{ change.status == 'error' }">ERROR: { change.message }</h5>
                     <a class="secondary-content" onclick="{ parent.deleteChange }"><i class="small material-icons red-text">delete</i></a>
-                    <code>{ change.method} { change.url.replace('http://shipit.dev.services.dmtio.net', '') }</code>
+                    <code>{ change.method } /{ change.url.replace(config.shipit_url, '') }</code>
                     <pre>{ JSON.stringify(change.data, null, 2) }</pre>
                 </li>
             </ul>
@@ -16,6 +17,23 @@
             <button onclick="{ saveChanges }" class="btn">Save</button>
         </div>
     </div>
+
+    <style>
+    .collection li.type-error {
+        /* red lighten-4 */
+        background-color: #ffcdd2;
+    }
+
+    .collection li.type-success {
+        /* #c8e6c9 green lighten-4 */
+        background-color: #c8e6c9;
+    }
+
+    .collection li.type-prep {
+        /* #c8e6c9 amber lighten-4 */
+        background-color: #ffecb3;
+    }
+    </style>
 
     <script>
     var self = this,
