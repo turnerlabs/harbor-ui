@@ -34,7 +34,7 @@
         <div class="row valign-wrapper">
             <div class="col s12 right-align valign">
                 <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Save</button>
+                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
             </div>
         </div>
 
@@ -114,9 +114,11 @@
                 <a id="delete-shipment-button" class="btn red { disableShipmentBtn }" onclick="{ deleteShipment }" title="Will permanently delete Shipment">Delete</a>
                 <br><span class="grey-text text-lighten-1">Replicas must be set to zero and triggered to be able to delete a Shipment.</span>
             </p>
-            <p class="col s4">&nbsp;</p>
-            <p class="col s2 valign center-align"><a class="btn" onclick="{ showModal }" target="copyModal" title="Clone the current Shipment:Environment to a new Environment">Clone</a><br>&nbsp;</p>
-            <p class="col s2 valign right-align"><a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a><br>&nbsp;</p>
+            <p class="col s8 valign right-align">
+                <a class="btn" onclick="{ showModal }" target="copyModal" title="Clone the current Shipment:Environment to a new Environment">Clone</a>
+                <a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a>
+                <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button><br>&nbsp;
+            </p>
         </div>
     </div>
 

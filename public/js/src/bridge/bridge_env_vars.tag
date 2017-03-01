@@ -2,7 +2,7 @@
     <div class="row valign-wrapper">
         <div class="col s12 right-align valign">
             <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Save</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
         </div>
     </div>
 
@@ -73,6 +73,13 @@
                       location="provider"
                       list="{ provider.envVars }"></add-variable>
               </div>
+        </div>
+    </div>
+
+    <div class="row valign-wrapper">
+        <div class="col s12 right-align valign">
+            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
         </div>
     </div>
 

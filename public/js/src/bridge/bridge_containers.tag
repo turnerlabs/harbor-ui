@@ -2,7 +2,7 @@
     <div class="row valign-wrapper">
         <div class="col s12 right-align valign">
             <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Save</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
         </div>
     </div>
 
@@ -22,8 +22,12 @@
     </div>
 
     <div class="row">
-        <div class="col s12">
+        <div class="col s6">
             <button class="btn add-containers-btn btn-disable modal-trigger" data-target="container-modal" onclick="{ addContainer }">Add Container</button>
+        </div>
+        <div class="col s6 right-align valign">
+            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
+            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
         </div>
     </div>
 
