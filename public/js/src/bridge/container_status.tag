@@ -20,8 +20,8 @@
                     <td>{ replica.host }</td>
                     <td title="{ replica.name }">{ replica.name.replace('thedeployment-', '') }</td>
                     <td class="{ getColor(replica.phase) }">{ replica.phase }</td>
-                    <td>{ container.id.slice(0, 7) }</td>
-                    <td>{ container.image }</td>
+                    <td title="{ container.id }">{ container.id.slice(0, 7) }</td>
+                    <td title="{ container.image }">{ container.imageDisplay }</td>
                     <td class="{ getColor(container.state )}">{ container.state }</td>
                     <td class="{ checkRestarts(container.restartCount) } center">{ container.restartCount }</td>
                 </tr>
@@ -87,6 +87,14 @@
 
     RiotControl.on('update_logs_result', function (data) {
         d('bridge/container_status::update_logs_result', data);
+
+        data.replicas = data.replicas.map(function (replica) {
+            replica.containers = replica.containers.map(function (container) {
+                container.imageDisplay = container.image.replace(/[\w\S]+\//, '');
+                return container;
+            });
+            return replica;
+        });
 
         self.helm = data;
         self.update();
