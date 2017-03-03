@@ -12,6 +12,8 @@
         <bridge_command if={ page=='bridge' }></bridge_command>
     </div>
 
+    <view_changes_modal targetid="viewChangesModal"></view_changes_modal>
+
     <script>
     var self = this,
         d = utils.debug,

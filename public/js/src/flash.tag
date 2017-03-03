@@ -8,15 +8,23 @@
     </script>
     <style>
         .error {
-            background-color: #F44336;
+            /* red darken-1 */
+            background-color: #e53935;
         }
 
         .passed {
-            background-color: #4CAF50;
+            /* green darken-1 */
+            background-color: #43a047;
+        }
+
+        .message {
+            /* light-blue darken-1 */
+            background-color: #039be5
         }
 
         .success {
-            background-color: #4CAF50;
+            /* green darken-1 */
+            background-color: #43a047;
         }
     </style>
 </flash>

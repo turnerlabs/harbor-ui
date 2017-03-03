@@ -9,6 +9,8 @@ function AppStore(host, services) {
         calledGetUserGroups = false,
         calledGetUsers = false;
 
+    var changes = [];
+
     hosts = {
         catalogit: window.config.catalogit_url.substring(0, window.config.catalogit_url.length - 1),
         shipit: window.config.shipit_url.substring(0, window.config.shipit_url.length - 1),
@@ -77,7 +79,7 @@ function AppStore(host, services) {
     /* Menu Store */
     self.on('menu_register', function (name, path) {
         d('MenuStore::menu_register', name, path);
-        self.list.push({name: name, path: '#' + path, isActive: false});
+        self.list.push({ name: name, path: '#' + path, isActive: false });
 
         RiotControl.trigger('menu_list_changed', self.list);
     });
@@ -124,7 +126,7 @@ function AppStore(host, services) {
             dataType: 'json',
             success: function (containers) {
                 d('APIStore::get_containers::success');
-                var result = containers.map(function(container) { return {name: container}});
+                var result = containers.map(function (container) { return { name: container }});
                 RiotControl.trigger('get_containers_result', result);
             },
             error: function (xhr, status, err) {
@@ -203,7 +205,7 @@ function AppStore(host, services) {
                     i;
 
                 for (i = 0; i < result.environments.length; i++) {
-                    environments.push({name: result.environments[i].name, path: mu('#bridge', shipment, result.environments[i].name)});
+                    environments.push({ name: result.environments[i].name, path: mu('#bridge', shipment, result.environments[i].name) });
                 }
 
                 RiotControl.trigger('get_shipment_environments_result', environments);
@@ -257,43 +259,153 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('bridge_update_changes', function (newChanges) {
+        changes = newChanges;
+        RiotControl.trigger('bridge_have_changes');
+    });
+
+    self.on('bridge_have_changes', function () {
+        d('BridgeStore::bridge_have_changes', changes.length > 0);
+        RiotControl.trigger('bridge_have_changes_result', changes.length > 0);
+    });
+
+    self.on('bridge_updated_changes', function () {
+        d('BridgeStore::bridge_updated_changes');
+        RiotControl.trigger('bridge_have_changes');
+    });
+
+    self.on('show_changes_panel', function () {
+        d('BridgeStore::show_changes_panel')
+
+        RiotControl.trigger('open_changes_modal', changes);
+    });
+
+    self.on('bridge_changes_remove_items', function (item) {
+        var arr;
+
+        switch (item) {
+        case 'all':
+            arr = [];
+            break;
+        case 'success':
+            arr = changes.filter(function (change) {
+                return change.status !== 'success';
+            });
+            break;
+        }
+
+        changes = arr;
+        RiotControl.trigger('bridge_updated_changes');
+    });
+
+    self.on('shipit_save_changes', function () {
+        d('ShipitStore::shipit_save_changes', changes);
+        if (changes.length > 0) {
+            var x = changes.length;
+            RiotControl.trigger('flash_message', 'message', 'Saving x changes'.replace('x', x));
+
+            /*
+             * Using jQuery.when; which is like Promise.all, but works with jQuery.ajax out of the box
+             * One issue though, is that Promise.all takes an array of Promises, whereas jQuery.when
+             * takes each Deferred/Promise as a argument: ([x, y, z]) vs (x, y, z)
+             * So, I'm using Function.apply to map the Deferred objects from an array to arguments
+             * The changes.map call creates each jQuery.ajax call
+             */
+            $.when.apply(
+                this,
+                changes.map(function (change, index) {
+                    return $.ajax({
+                        method: change.method,
+                        url: change.url,
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        accepts: 'application/json',
+                        data: JSON.stringify(change.data),
+                        headers: change.headers,
+                        success: (function (c, i) {
+                                return function (result, status, xhr) {
+                                    c.status = status;
+                                    c.index = i;
+                                };
+                            }(change, index)),
+                        error: (function (c) {
+                            return function (xhr, status, err) {
+                                d('ShipitStore::shipit_save_changes:::ajax.error', xhr, status, err)
+                                c.status = status;
+                                c.message = err;
+                            };
+                        }(change))
+                    });
+                })
+            )
+            .then(
+                function () {
+                    d('ShipitStore::shipit_save_changes::when::ajax::then', arguments);
+                    RiotControl.trigger('flash_message', 'success', 'Changes saved')
+                    RiotControl.trigger('bridge_changes_remove_items', 'all');
+                },
+                function () {
+                    d('ShipitStore::shipit_save_changes::when::ajax::catch', arguments);
+                    RiotControl.trigger('flash_message', 'error', 'Changes failed!');
+                    RiotControl.trigger('bridge_changes_remove_items', 'success');
+                }
+            );
+        } else {
+            RiotControl.trigger('flash_message', 'error', 'Nothing to save');
+        }
+    });
+
     self.on('shipit_update_value', function (url, value, method) {
-        d('ShipitStore::alter shipment with value:', url, value, method);
+        d('ShipitStore::shipit_update_value', url, value, method);
 
         var payload = {};
 
         if (typeof value === 'object') {
             for (var key in value) {
-                payload[key] = value[key];
+                if (value.hasOwnProperty(key)) {
+                    payload[key] = value[key];
+                }
             }
         } else {
-            console.log('Error: shipit_update_value, Must pass in an object');
+            d('ShipitStore::shipit_update_value(ERROR: must pass in an object, not %s)', typeof value);
             return;
         }
 
-        $.ajax({
-            method: method ? method : 'PUT',
+        // Need to collect the change into an array of changes
+        var change = {
             url: mu(hosts.shipit, 'v1', 'shipment', url),
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            accepts: 'application/json',
-            data: JSON.stringify(payload),
+            data: payload,
+            method: method ? method : 'PUT',
+            status: 'prep',
             headers: {
                 'x-username': ArgoAuth.getUser(),
                 'x-token': ArgoAuth.getToken()
-            },
-            success: function (result, status, xhr) {
-                d('ShipitStore::shipit_update_value::shipit_update_value_success', url, result);
-                RiotControl.trigger('flash_message', 'success', 'Updated value');
-                RiotControl.trigger('shipit_update_value_result', result);
-            },
-            error: function (xhr, status, err) {
-                var error = xhr.responseText || err || 'Failed To Trigger Shipment!';
-                d('ShipitStore::shipit_update_value_plan::shipit_update_value_error', name, error);
-                RiotControl.trigger('flash_message', 'error', 'Failed to update value ('+ status +')');
-                RiotControl.trigger('shipit_update_value_result', 'error', error);
             }
-        });
+        };
+
+        /*
+         * If there are changes, loop through them
+         * if `change` matches any of them, remove
+         * the one it matches
+         */
+        d('ShipitStore::shipit_update_value(change to be added)', change);
+        d('ShipitStore::shipit_update_value(changes prior to update)', changes);
+        if (changes.length) {
+            changes = changes.filter(function (val, idx) {
+                if (change.method === 'POST') {
+                    // POSTs can have matching URLs
+                    // so remove if they match on data name; removes on false
+                    return !(change.data.name === val.data.name)
+                } else if (val.url === change.url && val.method === change.method) {
+                    return false; // removes it from changes
+                } else {
+                    return true;
+                }
+            });
+        }
+        changes.push(change);
+        RiotControl.trigger('bridge_updated_changes');
+        d('ShipitStore::shipit_update_value(changes after update)', changes);
     });
 
     self.on('bridge_delete_parent_shipment', function (shipment) {
@@ -507,6 +619,7 @@ function AppStore(host, services) {
 
     self.on('bridge_shipment_trigger', function (shipment, environment, location) {
         d('BridgeStore::bridge_shipment_trigger', shipment, environment, location);
+        RiotControl.trigger('bridge_shipment_is_triggering', true);
 
         $.ajax({
             method: 'POST',
@@ -519,6 +632,7 @@ function AppStore(host, services) {
                 result = JSON.parse(result);
                 RiotControl.trigger('bridge_shipment_trigger_result', result);
                 RiotControl.trigger('flash_message', 'success', result.message);
+                RiotControl.trigger('bridge_shipment_is_triggering', false);
 
                 if (result.elb_id) {
                     d('BridgeStore::bridge_shipment_trigger->bridge_lb_status');
@@ -532,6 +646,7 @@ function AppStore(host, services) {
 
                 RiotControl.trigger('flash_message', 'error', error.message, 30000);
                 RiotControl.trigger('bridge_shipment_trigger_result', {}, error.message);
+                RiotControl.trigger('bridge_shipment_is_triggering', false);
             }
         });
     });
@@ -786,7 +901,7 @@ function AppStore(host, services) {
         });
     });
 
-    self.on('buildit_get_plans', function() {
+    self.on('buildit_get_plans', function () {
         d('Buildit::buildit_get_plans');
 
         $.ajax({
@@ -807,7 +922,7 @@ function AppStore(host, services) {
         });
     });
 
-    self.on('datadog_create_embed', function(data) {
+    self.on('datadog_create_embed', function (data) {
         d('DataDog::create_embed');
 
         $.ajax({
@@ -957,7 +1072,7 @@ function AppStore(host, services) {
         });
     });
 
-    self.on('home_get_blog_rss', function() {
+    self.on('home_get_blog_rss', function () {
         //feed to parse
         var feed = mu('api', 'v1', 'blog-feed');
 
@@ -966,7 +1081,7 @@ function AppStore(host, services) {
                 xml:"application/rss+xml"
             },
             dataType:"xml",
-            success: function(data) {
+            success: function (data) {
                 // Credit: http://stackoverflow.com/questions/10943544/how-to-parse-an-rss-feed-using-javascript
                 var rssJson = [];
 
@@ -989,7 +1104,7 @@ function AppStore(host, services) {
                 d('AppStore::home_get_blog_rss:success', rssJson);
                 RiotControl.trigger('home_get_blog_rss_result', null, rssJson.slice(0, 5));
             },
-            error: function(xhr, status, err) {
+            error: function (xhr, status, err) {
                 var error = xhr.responseText || err;
                 d('AppStore::home_get_blog_rss:error', error);
                 RiotControl.trigger('home_get_blog_rss_result', error, null);
