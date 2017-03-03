@@ -18,7 +18,7 @@
             <tbody each="{ replica in helm.replicas.sort(sortReplicas) }">
                 <tr each="{ container in replica.containers.sort(sortContainers) }">
                     <td>{ replica.host }</td>
-                    <td>{ replica.name }</td>
+                    <td title="{ replica.name }">{ replica.name.replace('thedeployment-', '') }</td>
                     <td class="{ getColor(replica.phase) }">{ replica.phase }</td>
                     <td>{ container.id.slice(0, 7) }</td>
                     <td>{ container.image }</td>
