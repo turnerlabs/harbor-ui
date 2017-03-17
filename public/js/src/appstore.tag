@@ -334,7 +334,6 @@ function AppStore(host, services) {
             $.when.apply(
                 this,
                 changes.map(function (change, index) {
-                    console.log('tester', change.data)
                     change.data.hidden = (change.data.type === 'hidden') || false;
                     return $.ajax({
                         method: change.method,
