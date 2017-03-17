@@ -688,7 +688,8 @@ function AppStore(host, services) {
             error: function (xhr, status, err) {
                 var error = JSON.parse(xhr.responseText);
                 d('BridgeStore::bridge_lb_status::error', error);
-                RiotControl.trigger('flash_message', 'error', error.message, 1000 * 15);
+                // do not alert here, it's annoying
+                //RiotControl.trigger('flash_message', 'error', error.message, 1000 * 15);
             }
         });
     });

@@ -5,7 +5,7 @@
         <div class="action" if="{log.action}">
           <h5 class="header">Trigger</h5>
           <div class="details">
-            Action: <code class="pre-wrap"><raw-html html="{log.action}"></raw-html></code>
+            Action: <code class="pre-wrap">{log.action}</code>
           </div>
         </div>
         <div class="action" if="{log.created.length}">
