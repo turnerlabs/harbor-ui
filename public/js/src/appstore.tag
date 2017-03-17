@@ -324,7 +324,6 @@ function AppStore(host, services) {
         if (changes.length > 0) {
             var x = changes.length;
             RiotControl.trigger('flash_message', 'message', 'Saving x changes'.replace('x', x));
-
             /*
              * Using jQuery.when; which is like Promise.all, but works with jQuery.ajax out of the box
              * One issue though, is that Promise.all takes an array of Promises, whereas jQuery.when
@@ -335,6 +334,8 @@ function AppStore(host, services) {
             $.when.apply(
                 this,
                 changes.map(function (change, index) {
+                    console.log('tester', change.data)
+                    change.data.hidden = (change.data.type === 'hidden') || false;
                     return $.ajax({
                         method: change.method,
                         url: change.url,
