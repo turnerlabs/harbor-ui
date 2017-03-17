@@ -5,7 +5,7 @@
         <div class="action" if="{log.action}">
           <h5 class="header">Trigger</h5>
           <div class="details">
-            Action: {log.action}
+            Action: <code class="pre-wrap"><raw-html html="{log.action}"></raw-html></code>
           </div>
         </div>
         <div class="action" if="{log.created.length}">
@@ -48,8 +48,12 @@
           created: []
         };
 
+        if (!diff) {
+          return;
+        }
+
         // If not array then it was a trigger action
-        if (diff.charAt(0) !== '{' && diff.charAt(diff.length-1) !== '}') {
+        if (diff.charAt(0) !== '{' || diff.charAt(diff.length-1) !== '}') {
             self.log.action = diff;
             return;
         }
@@ -77,6 +81,10 @@
         border-radius: 4px;
         overflow-x: scroll;
         margin-bottom: 5px;
+    }
+
+    .pre-wrap {
+      white-space: pre-wrap;
     }
 
     .details {
