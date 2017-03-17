@@ -544,6 +544,11 @@
         }, 100);
     });
 
+    RiotControl.on('bridge_changes_success', function (audit_logs) {
+        d('bridge/command::bridge_changes_success', audit_logs);
+        RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
+    });
+
     RiotControl.on('get_shipment_audit_logs_result', function (audit_logs) {
         d('bridge/command::get_shipment_details_result', audit_logs);
         if (self.shipment) {

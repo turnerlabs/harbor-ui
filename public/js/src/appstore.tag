@@ -364,6 +364,7 @@ function AppStore(host, services) {
                     d('ShipitStore::shipit_save_changes::when::ajax::then', arguments);
                     RiotControl.trigger('flash_message', 'success', 'Changes saved')
                     RiotControl.trigger('bridge_changes_remove_items', 'all');
+                    RiotControl.trigger('bridge_changes_success');
                 },
                 function () {
                     d('ShipitStore::shipit_save_changes::when::ajax::catch', arguments);
