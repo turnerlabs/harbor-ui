@@ -5,10 +5,10 @@
                 <li class="tab col s2"><a href="#tabs-overview" value="overview" onclick="{ editUrl }">Overview</a></li>
                 <li class="tab col s2"><a href="#tabs-env-vars" value="env-vars" onclick="{ editUrl }">Env Vars</a></li>
                 <li class="tab col s2"><a href="#tabs-containers" value="containers" onclick="{ editUrl }">Containers</a></li>
+                <li class="tab col s2"><a href="#tabs-audit" value="audit" onclick="{ editUrl }">Audit</a></li>
                 <li class="tab col s2"><a href="#tabs-graphs" value="graphs" onclick="{ editUrl }">Graphs</a></li>
                 <li class="tab col s2"><a href="#tabs-logs" value="logs" onclick="{ editUrl }">Logs</a></li>
                 <li class="tab col s2"><a href="#tabs-cmds" value="cmds" onclick="{ editUrl }">Commands</a></li>
-                <li class="tab col s2"><a href="#tabs-audit" value="audit" onclick="{ editUrl }">Audit</a></li>
             </ul>
         </div>
     </div>
