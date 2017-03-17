@@ -536,8 +536,8 @@
         } else {
           RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
           RiotControl.trigger('get_shipment_status', self.shipment);
-          RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name)
         }
+        RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
         self.update();
         setTimeout(function () {
           $('.group-select').select2();
@@ -549,6 +549,7 @@
         if (self.shipment) {
             self.shipment.audit_logs = audit_logs;
         }
+        self.update();
     });
 
     RiotControl.on('datadog_create_embed_result', function (data) {

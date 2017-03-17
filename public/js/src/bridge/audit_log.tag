@@ -62,11 +62,11 @@
         diff = JSON.parse(diff);
         for (var key in diff) {
             if (diff[key].length === 1) {
-                self.log.created.push({key: key, value: JSON.stringify(diff[key])});
+                self.log.created.push({key: key, value: JSON.stringify(diff[key][0])});
             } else if (diff[key].length === 2) {
                 self.log.updated.push({key: key, value: diff[key][0] + " => " + diff[key][1]});
             } else {
-                self.log.deleted.push({key: key, value: diff[key]});
+                self.log.deleted.push({key: key, value: diff[key][0]});
             }
         }
     });
