@@ -8,6 +8,7 @@
                 <li class="tab col s2"><a href="#tabs-graphs" value="graphs" onclick="{ editUrl }">Graphs</a></li>
                 <li class="tab col s2"><a href="#tabs-logs" value="logs" onclick="{ editUrl }">Logs</a></li>
                 <li class="tab col s2"><a href="#tabs-cmds" value="cmds" onclick="{ editUrl }">Commands</a></li>
+                <li class="tab col s2"><a href="#tabs-audit" value="audit" onclick="{ editUrl }">Audit</a></li>
             </ul>
         </div>
     </div>
@@ -139,6 +140,17 @@
             <div if="{ view.helm.error }">
                 <h4>There are no running instances of this shipment.</h4>
                 <p>{ view.helm.msg }</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabs-audit">
+        <div class="row">
+            <div if="{ loading === false && !view.helm.error }" class="col s12" each="{ log in shipment.audit_logs }">
+                <audit_log log="{log}"></audit_log>
+            </div>
+            <div if="{ shipment.audit_logs.length == 0 }">
+                <h4>There are no logs for this Shipment.</h4>
             </div>
         </div>
     </div>
@@ -524,11 +536,19 @@
         } else {
           RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
           RiotControl.trigger('get_shipment_status', self.shipment);
+          RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name)
         }
         self.update();
         setTimeout(function () {
           $('.group-select').select2();
         }, 100);
+    });
+
+    RiotControl.on('get_shipment_audit_logs_result', function (audit_logs) {
+        d('bridge/command::get_shipment_details_result', audit_logs);
+        if (self.shipment) {
+            self.shipment.audit_logs = audit_logs;
+        }
     });
 
     RiotControl.on('datadog_create_embed_result', function (data) {

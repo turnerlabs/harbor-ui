@@ -240,6 +240,27 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('get_shipment_audit_logs', function (shipment, environment) {
+        d('APIStore::get_shipment_audit_logs', shipment);
+
+        $.ajax({
+            url: mu(hosts.shipit, 'v1', 'logs', 'shipment', shipment, 'environment', environment),
+            dataType: 'json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result) {
+                d('APIStore::get_shipment_audit_logs::success');
+                RiotControl.trigger('get_shipment_audit_logs_result', result);
+            },
+            error: function (xhr, status, err) {
+                var error = xhr.responseText || err;
+                d('APIStore::get_shipment_audit_logs::error', error);
+            }
+        });
+    });
+
 
 
     self.on('get_helm_details', function (customer, shipment, environment) {
