@@ -684,12 +684,6 @@ function AppStore(host, services) {
             success: function (result, status, xhr) {
                 d('BridgeStore::bridge_lb_status::success');
                 RiotControl.trigger('bridge_lb_status_result', result);
-            },
-            error: function (xhr, status, err) {
-                var error = JSON.parse(xhr.responseText);
-                d('BridgeStore::bridge_lb_status::error', error);
-                // do not alert here, it's annoying
-                //RiotControl.trigger('flash_message', 'error', error.message, 1000 * 15);
             }
         });
     });
