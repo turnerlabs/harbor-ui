@@ -1,15 +1,16 @@
 <config-pair>
     <div class="valign-wrapper">
-        <div if="{ name }" class="col s3 valign">
+        <div class="col s3 valign" if={ key }>
             <i if="{ var_type == 'hidden' }" class="tiny material-icons" title="Hidden Env Var">lock</i>
             <i if="{ var_type == 'discover' }" class="tiny material-icons" title="Discover Env Var">visibility</i>
-            { name }
+            { key }
         </div>
-        <div if="{ val }" class="col s8 valign">
-            <input type="text" value="{ val }" onblur="{ updateValue }" />
+        <div class="col s8 valign" if={ val }>
+            <input if="{!onlyread}" type="text" value={ val } onblur={ updateValue } />
+            <input if="{onlyread}" type="text" value={ val } readonly/>
         </div>
-        <div class="col s1 valign">
-            <span onclick="{ removeValue }" name="{ valueLocation }" class="remover" title="Remove"><i class="material-icons">close</i></span>
+        <div class="col s1 valign" if="{!onlyread}">
+            <span onclick={ removeValue } name="{valueLocation}" class="remover" title="Remove"><i class="material-icons">close</i></span>
         </div>
     </div>
 
@@ -38,16 +39,20 @@
     }
 
     removeValue(evt) {
-        d('common/config-pair::environment_variable_delete', self.name, self.opts);
-        RiotControl.trigger('environment_variable_delete', self.name, self.opts);
+        d('common/config-pair::environment_variable_delete', self.key, self.opts);
+        RiotControl.trigger('environment_variable_delete', self.key, self.opts);
     }
 
-    self.on('update', function () {
-        d('common/config-pair::update', self.opts);
-        self.name = self.opts.key; // key was conflicting with another value on "self"
+    self.on('update', function() {
+        self.key = self.opts.key;
         self.val = self.opts.val;
         self.var_type = self.opts.var_type || 'text';
         self.valueLocation = self.opts.location || 'environment';
+        self.onlyread = self.opts.onlyread;
+    });
+
+    self.on('mount', function () {
+        d('common/config-pair::mount(%s: "%s")', self.key, self.val, self.opts);
     });
     </script>
 </config-pair>

@@ -343,9 +343,6 @@ var utils = (function () {
                         shouldSave.save = true;
                         shouldSave.list.push(envVar);
                     } else if (port.primary === false){
-                        if (port.healthcheck) {
-                            RiotControl.trigger('flash_message', 'message', 'Removing healthcheck because %port% is not primary'.replace('%port%', port.name));
-                        }
                         port.healthcheck = "";
                     }
                 }

@@ -96,7 +96,7 @@
                     </div>
                 </div>
                 <div class="row">
-                  <div class="col s12 input-field">
+                  <div class="col s12 input-field" if="{!onlyread}">
                       Protocol
                       <select id="protoSelect" class="proto-select" name="protocol" onchange="{ setProtocol }" style="width: 100%; display: block;">
                         <option
