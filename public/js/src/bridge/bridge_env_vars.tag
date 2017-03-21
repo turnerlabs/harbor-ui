@@ -1,8 +1,12 @@
 <bridge_env_vars>
-    <div class="row valign-wrapper">
-        <div class="col s12 right-align valign">
-            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
+    <div class="row">
+        <div class="col s8">&nbsp;</div>
+        <div class="col s2 right-align valign">
+            <input type="checkbox" id="edit-btn-env-var" onclick="{ toggleEditMode }"/>
+            <label for="edit-btn-env-var">Edit mode</label>
+        </div>
+        <div class="col s2 right-align valign">
+            <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
         </div>
     </div>
 
@@ -15,18 +19,19 @@
 
     <div class="row">
         <h4>Shipment Env Vars</h4>
-        <p>These env vars are exposed to all Shipment instances with name, <strong>{ shipment.parentShipment.name }</strong>, regardless of Environment.</p>
+        <p>These env vars are exposed to all Shipment instances with name, <strong>{shipment.parentShipment.name}</strong>, regardless of Environment.</p>
     </div>
     <div class="row">
-        <config-pair each="{ key, i in shipment.parentShipment.envVars }"
+        <config-pair each={ key, i in shipment.parentShipment.envVars }
           iterator="{ shipment.parentShipment.envVars }"
           target="{ shipment.parentShipment.name }"
           location="shipment"
           index="{ i }"
           key="{ key.name }"
           var_type="{ key.type }"
+          onlyread="{ onlyread }"
           val="{ key.value }"/>
-        <add-variable
+        <add-variable if="{ !onlyread }"
             target="{ shipment.parentShipment.name }"
             location="shipment"
             list="{ shipment.parentShipment.envVars }"/>
@@ -37,15 +42,16 @@
         <p>These env vars are exposed to only to Shipment instances with environment, <strong>{ shipment.name }</strong>.
     </div>
     <div class="row">
-        <config-pair each="{ key, i in shipment.envVars }"
+        <config-pair each={ key, i in shipment.envVars }
           iterator="{ shipment.envVars }"
           index="{ i }"
           target="{ shipment.name }"
           location="environment"
           key="{ key.name }"
           var_type="{ key.type }"
+          onlyread="{ onlyread }"
           val="{ key.value }"/>
-        <add-variable
+        <add-variable if="{ !onlyread }"
             target="{ shipment.name }"
             location="environment"
             list="{ shipment.envVars }"/>
@@ -60,15 +66,17 @@
         <div class="col s12">
               <h5>{ provider.name } Env Vars</h5>
               <div class="row">
-                  <config-pair each="{ key, j in provider.envVars }"
+                  <config-pair each={ key, j in provider.envVars }
                       iterator="{ provider.envVars }"
                       index="{ j }"
                       target="{ provider.name }"
                       location="provider"
                       key="{ key.name }"
                       var_type="{ key.type }"
+                      onlyread="{ onlyread }"
                       val="{ key.value }"/>
                   <add-variable
+                      if="{ !onlyread }"
                       target="{ provider.name }"
                       location="provider"
                       list="{ provider.envVars }"></add-variable>
@@ -76,20 +84,17 @@
         </div>
     </div>
 
-    <div class="row valign-wrapper">
-        <div class="col s12 right-align valign">
-            <button class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }">Trigger</button>
-            <button class="{ btn: true, disabled: !haveChanges }" onclick="{ viewChanges }">Review Changes</button>
-        </div>
-    </div>
-
     <script>
     var self = this,
         d = utils.debug;
 
-    saveChanges(evt) {
-        d('bridge/envVars::saveChanges');
-        RiotControl.trigger('shipit_save_changes');
+    self.onlyread = true;
+
+    toggleEditMode(evt) {
+        d('bridge/envVars::toggleEditMode');
+        self.onlyread = !self.onlyread;
+
+        $('.btn-disable').attr('disabled', self.onlyread);
     }
 
     triggerShipment(evt) {
@@ -98,13 +103,12 @@
             return;
         }
 
-        self.shipment.providers.forEach(function (provider) {
+        self.shipment.providers.forEach(function(provider) {
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
-    }
 
-    viewChanges(evt) {
-        RiotControl.trigger('show_changes_panel');
+        self.triggering = true;
+        self.update();
     }
 
     function getUrl(key, opts) {
@@ -128,16 +132,7 @@
         return url;
     }
 
-    RiotControl.on('bridge_shipment_is_triggering', function (result) {
-        self.triggering = result;
-        self.update();
-    });
-
-    RiotControl.on('bridge_have_changes_result', function (result) {
-        self.haveChanges = result;
-    });
-
-    RiotControl.on('shipit_added_var', function (envVar, opts) {
+    RiotControl.on('shipit_added_var', function(envVar, opts) {
         d('bridge/bridge_env_vars::shipit_added_var', envVar, opts);
         if (!self.shipment) {
             return;
@@ -174,14 +169,17 @@
         self.update();
     });
 
-    RiotControl.on('environment_variable_update', function (data, value, opts) {
-        d('bridge/bridge_env_vars::config_value_update', data, value, opts);
+    RiotControl.on('environment_variable_update', function (key, value, opts) {
+        d('bridge/bridge_env_vars::config_value_update', key, value, opts);
+
+        var data = {},
+            routed = false;
 
         if (opts.type === 'number') {
             value = parseInt(value);
         }
 
-        var url = getUrl(data.name, opts);
+        var url = getUrl(key, opts);
 
         data.value = value;
         opts.iterator[opts.index].value = value;
@@ -199,7 +197,7 @@
         self.update();
     });
 
-    self.on('update', function () {
+    self.on('update', function() {
         self.shipment = self.opts.shipment;
     });
     </script>

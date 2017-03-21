@@ -6,7 +6,7 @@
                 <span class="sm">{ container.version }</span>
             </div>
             <div class="row">
-                <div class="col s12 card red darken-1" if="{ portValueChanged }">
+                <div class="col s12 card red darken-1" if="{portValueChanged}">
                     <div class="card-content white-text">
                         If you change a Port value that is already attached to a running Shipment,
                         you must set the shipment's replicas to 0, then trigger the Shipment,
@@ -18,13 +18,13 @@
                     <h5>Ports</h5>
                 </div>
                 <div class="col s4 right-align">
-                    <button class="btn right add-port-btn" onclick="{ addPort }">Add Port</button>
+                    <button class="btn right add-port-btn" disabled={ onlyread } onclick="{ addPort }">Add Port</button>
                 </div>
                 <div class="col s12" if="{ container.version }">
                     <div class="row">
                         <div class="col s12 input-field" each="{ port, i in container.ports }">
-                            <shipit_port port="{ port }" container="{ container }"></shipit_port>
-                            <button if="{ i > 0 }" name="{ i }" onclick="{ removePort }" class="btn delete-btn right">Remove Port</button>
+                            <shipit_port port="{ port }" onlyread="{ onlyread }" container="{ container }"></shipit_port>
+                            <button if="{ i > 0 && !onlyread }" name="{ i }" onclick="{ removePort }" class="btn delete-btn right">Remove Port</button>
                         </div>
                     </div>
                 </div>
@@ -34,15 +34,17 @@
                     <h5>Container Env Vars</h5>
                     <p>These env vars are exposed to only to Shipment instances with container, <strong>{ container.name }</strong>.
                     <div class="row">
-                        <config-pair each="{ key, i in container.envVars }"
+                        <config-pair each={ key, i in container.envVars }
                             iterator="{ container.envVars }"
                             index="{ i }"
                             target="{ container.name }"
                             location="container"
                             key="{ key.name }"
                             var_type="{ key.type }"
+                            onlyread="{ onlyread }"
                             val="{ key.value }"></config-pair>
                         <add-variable
+                            if="{ !onlyread }"
                             target="{ container.name }"
                             location="container"
                             list="{ container.envVars }"></add-variable>
@@ -51,7 +53,7 @@
             </div>
             <div class="row">
                 <div class="col s12">
-                    <button class="btn delete-btn" name="{ container.name }" onclick="{ removeContainer }">Delete Container</button>
+                    <button class="btn delete-btn" name="{ container.name }" disabled={ onlyread } onclick="{ removeContainer }">Delete Container</button>
                 </div>
             </div>
         </div>
@@ -63,11 +65,12 @@
         portCount = 0,
         lastContainer;
 
+    self.onlyread = true;
     self.requesting = false;
 
     self.portValueChanged = false;
 
-    versionCompare = function (array) {
+    versionCompare = function(array) {
         return array.sort(utils.versionCompare)
     }
 
@@ -96,15 +99,16 @@
     }
 
     addPort(primary) {
+        var port = utils.getDefaultPort();
         var portObj = {
             protocol: 'http',
             external: true,
             primary: primary === true ? true : false,
             public_vip: false,
-            healthcheck: '/',
+            healthcheck: '',
             ssl_management_type: 'iam',
             enable_proxy_protocol: false,
-            value: utils.getDefaultPort(),
+            value: port,
             name: "PORT"
         };
 
@@ -134,7 +138,7 @@
     function setPorts(container) {
         var shouldSaveEnvVars = utils.setPorts(container, container.envVars);
 
-        shouldSaveEnvVars.list.forEach(function (envVar) {
+        shouldSaveEnvVars.list.forEach(function(envVar) {
             var envUrl = self.parent.shipment.parentShipment.name + '/environment/' + self.parent.shipment.name + '/container/' + container.name + '/envVar';
             if (envVar.add) {
                 envUrl += 's'
@@ -151,8 +155,8 @@
             valid = true,
             alerted = {};
 
-        containers.forEach(function (container) {
-            container.ports.forEach(function (port) {
+        containers.forEach(function(container) {
+            container.ports.forEach(function(port) {
                 if (port.primary) {
                     portNums++;
                 }
@@ -166,10 +170,10 @@
         d('shipyard/containers::get_container_versions_result', results);
         self.versions = results;
         self.update();
-        setTimeout(function () { $('.bridge-version-select').select2()}, 1000);
+        setTimeout(function() { $('.bridge-version-select').select2()}, 1000);
     }
 
-    RiotControl.on('shipit_added_port', function (container, port) {
+    RiotControl.on('shipit_added_port', function(container, port) {
 
         var url = self.parent.shipment.parentShipment.name + '/environment/' + self.parent.shipment.name + '/container/' + container.name + '/ports';
         setPorts(container);
@@ -177,7 +181,7 @@
         self.update();
     });
 
-    RiotControl.on('shipit_delete_port', function (container, port) {
+    RiotControl.on('shipit_delete_port', function(container, port) {
 
         var url = self.parent.shipment.parentShipment.name + '/environment/' + self.parent.shipment.name + '/container/' + container.name + '/port/' + port.name;
         setPorts(container);
@@ -186,7 +190,7 @@
     });
 
 
-    RiotControl.on('port_value_changed', function (container, port) {
+    RiotControl.on('port_value_changed', function(container, port) {
         d('bridge/bridge_container::port_value_changed', container, port);
         self.portValueChanged = true;
 
@@ -194,12 +198,9 @@
             url;
 
         url = self.parent.shipment.parentShipment.name + '/environment/' + self.parent.shipment.name + '/container/' + container.name + '/port/' + (port.oldName || port.name);
-        d('bridge/bridge_container::port_value_changed::setPorts(pre)', port);
         setPorts(container);
-        d('bridge/bridge_container::port_value_changed::setPorts(post)', port);
 
         validated = validateContainers(self.parent.shipment.containers);
-
 
         if (validated) {
             RiotControl.trigger('shipit_update_value', url, port);
@@ -209,6 +210,7 @@
 
     self.on('update', function () {
         var version;
+        self.onlyread = self.opts.onlyread;
         self.container = self.opts.container;
 
         if (self.container && self.container.ports) {
