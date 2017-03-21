@@ -238,6 +238,27 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('get_shipment_audit_logs', function (shipment, environment) {
+        d('APIStore::get_shipment_audit_logs', shipment);
+
+        $.ajax({
+            url: mu(hosts.shipit, 'v1', 'logs', 'shipment', shipment, 'environment', environment),
+            dataType: 'json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result) {
+                d('APIStore::get_shipment_audit_logs::success');
+                RiotControl.trigger('get_shipment_audit_logs_result', result);
+            },
+            error: function (xhr, status, err) {
+                var error = xhr.responseText || err;
+                d('APIStore::get_shipment_audit_logs::error', error);
+            }
+        });
+    });
+
 
 
     self.on('get_helm_details', function (customer, shipment, environment) {
@@ -270,6 +291,8 @@ function AppStore(host, services) {
             console.log('Error: shipit_update_value, Must pass in an object');
             return;
         }
+
+        payload.hidden = (payload.type === 'hidden') || false;
 
         $.ajax({
             method: method ? method : 'PUT',
@@ -547,11 +570,6 @@ function AppStore(host, services) {
             success: function (result, status, xhr) {
                 d('BridgeStore::bridge_lb_status::success');
                 RiotControl.trigger('bridge_lb_status_result', result);
-            },
-            error: function (xhr, status, err) {
-                var error = JSON.parse(xhr.responseText);
-                d('BridgeStore::bridge_lb_status::error', error);
-                RiotControl.trigger('flash_message', 'error', error.message, 1000 * 15);
             }
         });
     });
