@@ -292,8 +292,6 @@ function AppStore(host, services) {
             return;
         }
 
-        payload.hidden = (payload.type === 'hidden') || false;
-
         $.ajax({
             method: method ? method : 'PUT',
             url: mu(hosts.shipit, 'v1', 'shipment', url),
