@@ -105,6 +105,12 @@
             <p class="col s2">ERP</p>
             <p class="col s10"><a href="{ view.erp }" target="_blank">{ view.erp }</a></p>
 
+            <p class="col s2">Monitoring</p>
+            <p class="col s10">
+                <input type="checkbox" id="enableMonitoring" checked="{ checked: shipment.enableMonitoring }" onchange="{ updateMonitoring }" />
+                <label for="enableMonitoring" style="color: #000;">Enable Monitoring</label>
+            </p>
+
             <p class="col s2" if="{ shipment.buildToken }">Build Token</p>
             <p class="col s7" if="{ shipment.buildToken }">{ shipment.buildToken }</p>
             <p class="col s3 right-align" if="{ shipment.buildToken }"><button class="btn" onclick="{ rollToken }">Roll token</button></p>
@@ -303,6 +309,13 @@
 
         RiotControl.trigger('shipit_update_value', url, {replicas: parseInt(evt.target.value)}, 'PUT');
         self.update();
+    }
+
+    updateMonitoring(evt) {
+        var val = $(evt.target).is(':checked'),
+            url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
+
+        RiotControl.trigger('shipit_update_value', url, { enableMonitoring: val }, 'PUT');
     }
 
     setTimeframe(evt) {
