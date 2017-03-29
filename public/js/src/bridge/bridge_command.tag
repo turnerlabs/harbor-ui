@@ -107,6 +107,7 @@
 
             <p class="col s2">Monitoring</p>
             <p class="col s10">
+               {shipment.enableMonitoring}
                 <input type="checkbox" id="enableMonitoring" checked="{ checked: shipment.enableMonitoring }" onchange="{ updateMonitoring }" />
                 <label for="enableMonitoring" style="color: #000;">Enable Monitoring</label>
             </p>
@@ -315,7 +316,13 @@
         var val = $(evt.target).is(':checked'),
             url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
 
+        if (val) {
+            self.shipment.enableMonitoring = true;
+        } else {
+            self.shipment.enableMonitoring = false;
+        }
         RiotControl.trigger('shipit_update_value', url, { enableMonitoring: val }, 'PUT');
+        self.update();
     }
 
     setTimeframe(evt) {
