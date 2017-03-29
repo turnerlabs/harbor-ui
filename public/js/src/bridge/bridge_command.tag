@@ -107,7 +107,6 @@
 
             <p class="col s2">Monitoring</p>
             <p class="col s10">
-               {shipment.enableMonitoring}
                 <input type="checkbox" id="enableMonitoring" checked="{ checked: shipment.enableMonitoring }" onchange="{ updateMonitoring }" />
                 <label for="enableMonitoring" style="color: #000;">Enable Monitoring</label>
             </p>
