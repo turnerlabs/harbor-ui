@@ -315,7 +315,13 @@
         var val = $(evt.target).is(':checked'),
             url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
 
+        if (val) {
+            self.shipment.enableMonitoring = true;
+        } else {
+            self.shipment.enableMonitoring = false;
+        }
         RiotControl.trigger('shipit_update_value', url, { enableMonitoring: val }, 'PUT');
+        self.update();
     }
 
     setTimeframe(evt) {
