@@ -12,8 +12,19 @@
                 <p>Visit <a href="{ view.catalogitDocsUrl }">the API docs for CatalogIt</a> for more information.</p>
             </div>
         </div>
+        <button class="btn prev-btn" onclick={ addContainer }>Add Container</button>
         <div class="container" each="{container in shipment.containers}">
             <shipit_container container="{container}" images="{registryImages}"></shipit_container>
+        </div>
+        <div class="fake-container"if="{ shipment.containers.length == 0 }">
+          <div class="card amber">
+              <div class="card-content black-text">
+                  <span class="card-title">Notification</span>
+                  <p>You can continue without adding a contianer. If you want to just create the shipment
+                    and add the contianer later. Just continue...
+                  </p>
+              </div>
+          </div>
         </div>
     </div>
 
@@ -47,43 +58,46 @@
         riot.route('shipyard/info');
     }
 
+    addContainer(evt) {
+        d('shipyard/containers::addContainer');
+        self.shipment.containers.push({});
+    }
+
     function validate() {
 
         var valid = true,
             container;
 
-        if (self.shipment.containers.length <= 0 ||
-            !self.shipment.containers[0].version ||
-            !self.shipment.containers[0].image.split(':') === 2) {
-            RiotControl.trigger('flash_message', 'error', 'You must have at least one valid container.', 30000);
-            valid = false;
-        }
 
         if (self.shipment.containers.length === 1) {
             container = self.shipment.containers[0];
-            if (container.ports.length <= 0) {
-                RiotControl.trigger('flash_message', 'error', 'You must have at least one port object.', 30000);
-                valid = false;
-            }
 
-            container.ports.map(function(port) {
-                if (port.external) {
-                    if (!port.healthcheck) {
-                        RiotControl.trigger('flash_message', 'error', port.name + ':External ports must have a Healthcheck.', 30000);
+            if (contianer.ports) {
+
+                if (container.ports.length <= 0) {
+                    RiotControl.trigger('flash_message', 'error', 'You must have at least one port object.', 30000);
+                    valid = false;
+                }
+
+                container.ports.map(function(port) {
+                    if (port.external) {
+                        if (!port.healthcheck) {
+                            RiotControl.trigger('flash_message', 'error', port.name + ':External ports must have a Healthcheck.', 30000);
+                            valid = false;
+                        }
+                    }
+
+                    if (!port.value) {
+                        RiotControl.trigger('flash_message', 'error', port.name + ': Port Value must be set.', 30000);
                         valid = false;
                     }
-                }
 
-                if (!port.value) {
-                    RiotControl.trigger('flash_message', 'error', port.name + ': Port Value must be set.', 30000);
-                    valid = false;
-                }
-
-                if (port.healthcheck && port.healthcheck.substring(0,1) !== '/') {
-                    RiotControl.trigger('flash_message', 'error', port.name + ':Healthcheck must start with a /', 30000);
-                    valid = false;
-                }
-            });
+                    if (port.healthcheck && port.healthcheck.substring(0,1) !== '/') {
+                        RiotControl.trigger('flash_message', 'error', port.name + ':Healthcheck must start with a /', 30000);
+                        valid = false;
+                    }
+                });
+            }
         }
 
         return valid;
@@ -113,7 +127,7 @@
     RiotControl.on('retrieve_state_result', function (state) {
 
         self.shipment = state.shipment || {};
-        self.shipment.containers = self.shipment.containers || [{}];
+        self.shipment.containers = self.shipment.containers || [];
         retrievedState = true;
         self.update();
     });
@@ -121,6 +135,8 @@
     </script>
 
     <style scoped>
-
+         .fake-container {
+           height: 250px;
+         }
     </style>
 </containers>
