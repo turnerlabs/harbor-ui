@@ -72,7 +72,7 @@
         if (self.shipment.containers.length === 1) {
             container = self.shipment.containers[0];
 
-            if (contianer.ports) {
+            if (container.ports) {
 
                 if (container.ports.length <= 0) {
                     RiotControl.trigger('flash_message', 'error', 'You must have at least one port object.', 30000);
