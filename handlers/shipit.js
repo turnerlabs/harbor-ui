@@ -86,12 +86,12 @@ function createShipment(shipment) {
                 }
 
                 function createEnvPromise(data, url) {
-                    log.info('shipment creation process success', step, url, data, varUrl.type);
+                    log.info('shipment creation process success', step, url, varUrl.type);
                     var vars = data[varUrl.type];
 
                     if (vars) {
                         vars.map((envVar) => {
-                            log.info('shipment creation process adding ' + varUrl.type, JSON.stringify(envVar));
+                            log.info('shipment creation process adding ' + varUrl.type, envVar.name);
                             envVar.username = username;
                             envVar.token = token;
                             envPromises.push(requestify.post(url, envVar, {headers: {'x-username': username, 'x-token': token}}));
