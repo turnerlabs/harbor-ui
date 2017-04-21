@@ -1,6 +1,13 @@
 <container_status>
     <loading_elm if="{ !helm }"></loading_elm>
-
+    <div if="{ !helm.replicas }">
+      <div class="card red">
+          <div class="card-content black-text">
+              <span class="card-title">Error</span>
+              <p>There was an error fetching contianer data.</p>
+          </div>
+      </div>
+    </div>
     <div if="{ !helm.error && helm.replicas.length }">
         <table class="highlight">
             <thead>
@@ -88,13 +95,15 @@
     RiotControl.on('update_logs_result', function (data) {
         d('bridge/container_status::update_logs_result', data);
 
-        data.replicas = data.replicas.map(function (replica) {
-            replica.containers = replica.containers.map(function (container) {
-                container.imageDisplay = container.image.replace(/[\w\S]+\//, '');
-                return container;
+        if (data.replicas) {
+            data.replicas = data.replicas.map(function (replica) {
+                replica.containers = replica.containers.map(function (container) {
+                    container.imageDisplay = container.image.replace(/[\w\S]+\//, '');
+                    return container;
+                });
+                return replica;
             });
-            return replica;
-        });
+        }
 
         self.helm = data;
         self.update();

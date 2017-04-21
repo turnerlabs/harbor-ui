@@ -13,7 +13,8 @@
             </div>
         </div>
         <button class="btn prev-btn" onclick={ addContainer }>Add Container</button>
-        <div class="container" each="{container in shipment.containers}">
+        <div class="container" each="{container, i in shipment.containers}">
+            <button name="{ i }" onclick="{ removeContainer }" class="btn delete-btn right">Remove</button>
             <shipit_container container="{container}" images="{registryImages}"></shipit_container>
         </div>
         <div class="fake-container"if="{ shipment.containers.length == 0 }">
@@ -61,6 +62,14 @@
     addContainer(evt) {
         d('shipyard/containers::addContainer');
         self.shipment.containers.push({});
+        self.update();
+    }
+
+    removeContainer(evt) {
+        d('shipyard/containers::addContainer');
+        var index = parseInt(evt.target.name),
+            port = self.shipment.containers.splice(index, 1);
+        self.update();
     }
 
     function validate() {

@@ -2,9 +2,9 @@
 
 if (!process.env.CLOUD_HEALTH_API_KEY || !process.env.DATADOG_API_KEY || !process.env.DATADOG_APP_KEY) {
     console.log('missing env vars');
-    console.log('cloud health api key', process.env.CLOUD_HEALTH_API_KEY);
-    console.log('datadog api key', process.env.DATADOG_API_KEY);
-    console.log('datadog app key', process.env.DATADOG_APP_KEY);
+    process.env.CLOUD_HEALTH_API_KEY || console.log('missing CLOUD_HEALTH_API_KEY');
+    process.env.DATADOG_API_KEY || console.log('missing DATADOG_API_KEY');
+    process.env.DATADOG_APP_KEY || console.log('missing DATADOG_APP_KEY');
     return;
 }
 
@@ -142,17 +142,14 @@ app.post('/api/v1/shipments', function (req, res) {
     var name = req.body.name,
         env  = req.body.environment;
 
-    log.info('shipment creation attempt by', req.body.creator, req.body);
-
-
     shipitHelper.convertShipment(req.body)
     .then((data) =>  {
-       console.log('converted shipment. Now saving', data);
+       console.log('converted shipment. Now saving');
        return shipitHelper.createShipment(data);
     }, errorCallback)
     .then(function (data) {
         res.status(200).json(data);
-        log.info('shipment creation success', data);
+        log.info('shipment creation success');
     }, errorCallback);
 
     function errorCallback(error) {
