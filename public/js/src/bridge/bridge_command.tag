@@ -206,7 +206,7 @@
             </div>
             <div class="col s6 right-align">
                 Visit your
-                    <a target="_blank" href="{datadogLink}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}">
+                    <a target="_blank" href="{datadogLink}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}">
                         DataDog Dashboard</a>.
             </div>
         </div>
