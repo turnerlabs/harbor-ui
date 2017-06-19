@@ -97,9 +97,14 @@
 
         if (status === 200 && !data.errors) {
             self.shipment_result = data.shipment;
-            self.shipment.providers.forEach(function(provider) {
-                RiotControl.trigger('build_shipment_trigger', self.shipment.main.name, self.shipment.environment.name, provider.name);
-            });
+            if (data.shipment.containers && data.shipment.containers.length > 0) {
+                self.shipment.providers.forEach(function(provider) {
+                    RiotControl.trigger('build_shipment_trigger', self.shipment.main.name, self.shipment.environment.name, provider.name);
+                });
+            } else {
+                // just route the user to their shipment.
+                riot.route('bridge/%name/%env'.replace('%name', self.shipment.main.name).replace('%env', self.shipment.environment.name));
+            }
         } else {
             self.errors = data.errors;
         }

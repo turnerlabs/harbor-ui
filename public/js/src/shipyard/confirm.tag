@@ -112,11 +112,6 @@
             self.good = false;
         }
 
-        if (!self.shipment.containers || self.shipment.containers.length === 0) {
-            RiotControl.trigger('flash_message', 'error', 'There are no containers on this shipment.', 30000);
-            self.good = false;
-        }
-        
         if ((self.shipment.main.name + '-' + self.shipment.environment.name).length > 63) {
             RiotControl.trigger('flash_message', 'error', 'The combination of Shipment and Environment as a name is too long. It must be less than 63 characters.', 30000);
             self.good = false;
