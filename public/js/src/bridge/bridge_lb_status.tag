@@ -46,7 +46,12 @@
 
     RiotControl.on('bridge_lb_status_result', function (data) {
         d('bridge/bridge_lb_status::bridge_lb_status_result', data);
-        var all = data.instance_states.length;
+
+        if (!data || !data.instance_states) {
+            return;
+        }
+
+        var all = data.instance_states.length,
             outage = data.instance_states.filter(function (val) { return val.state === 'OutOfService' });
 
         // Show only when all messages are errors

@@ -206,7 +206,7 @@
             </div>
             <div class="col s6 right-align">
                 Visit your
-                    <a target="_blank" href="{datadogLink}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}">
+                    <a target="_blank" href="{getDataDogLink()}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}">
                         DataDog Dashboard</a>.
             </div>
         </div>
@@ -238,7 +238,6 @@
     self.environments;
     self.multiplier = config.updateInterval;
     self.barges = config.barges.split(',');
-    self.datadogLink = config.data_dog_link;
     self.sortRepliacs = utils.sortReplicas;
     self.sortContainers = utils.sortContainers;
     self.disableShipmentBtn = '';
@@ -458,6 +457,20 @@
         }
     }
 
+    getDataDogLink(evt) {
+
+        if (!self.shipment || !self.shipment.containers) {
+            return;
+        }
+
+        var type = getLbType(self.shipment.containers);
+        if (type === 'alb' || type === 'ingress') {
+            return config.alb_data_dog_link;
+        } else {
+            return config.data_dog_link;
+        }
+    }
+
     function checkDeleteButton() {
 
         if (!self.shipment || !view.helm) {
@@ -667,8 +680,8 @@
             return;
         }
         lastDataDogRequest = self.shipment.parentShipment.name + '-' + self.shipment.name;
-
-        var datadog_data = getDataDogData(self.shipment.parentShipment.name, self.shipment.name);
+        var lbType = getLbType(self.shipment.containers);
+        var datadog_data = getDataDogData(self.shipment.parentShipment.name, self.shipment.name, lbType);
 
         view.datadog_data = {};
 
@@ -678,8 +691,20 @@
         });
     }
 
+    function getLbType(containers) {
+        var type;
+        containers.map(function(container) {
+            container.ports.map(function(port) {
+                    if (port.primary === true) {
+                        type = port.lbtype;
+                    }
+                })
+        });
+        return type;
+    }
 
-    function getDataDogData(name, environment) {
+
+    function getDataDogData(name, environment, type) {
         var graphs = [],
             cpu = {
                 graph_json: {
@@ -748,12 +773,60 @@
                 size: 'small',
                 legend: 'yes',
                 title: 'Memory (last 4 hours)'
+            },
+            albRequestCount = {
+                graph_json: {
+                  "viz": "timeseries",
+                  "requests": [
+                    {
+                      "q": "max:aws.applicationelb.request_count{$product,$environment}.as_count()",
+                      "aggregator": "avg",
+                      "conditional_formats": [],
+                      "type": "line"
+                    }
+                  ]
+                },
+                timeframe: '4_hours',
+                size: 'small',
+                legend: 'yes',
+                title: 'ALB Request Count (last 4 hours)'
+            },
+            albLatency = {
+                graph_json: {
+                  "viz": "timeseries",
+                  "requests": [
+                    {
+                      "q": "max:aws.applicationelb.target_response_time.maximum{$product,$environment}",
+                      "aggregator": "avg",
+                      "conditional_formats": [],
+                      "type": "line"
+                    },
+                    {
+                      "q": "max:aws.applicationelb.target_response_time.average{$product,$environment}",
+                      "aggregator": "avg",
+                      "conditional_formats": [],
+                      "type": "line"
+                    }
+                  ]
+                },
+                timeframe: '4_hours',
+                size: 'small',
+                legend: 'yes',
+                title: 'ALB Max Latency (last 4 hours)'
             };
 
-        graphs.push(elbLatency);
-        graphs.push(elbRequestCount);
         graphs.push(cpu);
         graphs.push(memory);
+
+        // once we make alb default we will need to change this logic up a bit.
+        if (type === 'alb' || type === 'ingress') {
+            graphs.push(albLatency);
+            graphs.push(albRequestCount);
+        } else {
+            graphs.push(elbLatency);
+            graphs.push(elbRequestCount);
+        }
+
         var graphs1Hour = graphs.map(function(data) {
             var newData = JSON.parse(JSON.stringify(data));
             newData.title = data.title.replace('(last 4 hours)', '(last 1 hour)');
