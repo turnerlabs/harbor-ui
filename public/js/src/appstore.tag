@@ -569,6 +569,10 @@ function AppStore(host, services) {
             success: function (result, status, xhr) {
                 d('BridgeStore::bridge_lb_status::success');
                 RiotControl.trigger('bridge_lb_status_result', result);
+            },
+            error: function (xhr, status, err) {
+                d('BridgeStore::build_shipment_scale::error', err);
+                RiotControl.trigger('bridge_lb_status_result', xhr.responseJSON);
             }
         });
     });

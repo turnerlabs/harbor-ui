@@ -42,6 +42,7 @@
         <h4>Service</h4>
         <div class="row">
             <div each={ service in shipment.providers.map(getViewServices) }>
+                <p class="col s12">AWS ID: {service.id}</p>
                 <div each={ link in service.links }>
                     <p class="col s2">{ service.provider } ({ link.proto })</p>
                     <p if={ link.linkable} class="col s10"><a href="{ link.href }" target="_blank">{ link.href }</a></p>
@@ -369,6 +370,7 @@
             replicas: provider.replicas,
             barge: provider.barge,
             providerObj: provider,
+            id: provider.id,
             links: []
         };
 
