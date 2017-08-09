@@ -41,13 +41,45 @@
         self.shipment    = obj.parentShipment.name;
         self.provider    = obj.providers[provider].name;
         self.replicas    = obj.providers[provider].replicas;
+        self.raw_provider = obj.providers[provider];
         self.started     = true;
     }
 
     RiotControl.on('bridge_lb_status_result', function (data) {
         d('bridge/bridge_lb_status::bridge_lb_status_result', data);
-        var all = data.instance_states.length;
+
+        if (!data || (!data.instance_states && !data.message && !data.load_balancers)) {
+            return;
+        }
+
+        // if we get an error back from requesting for an alb.
+        // These just return {"message":" LB not active"}
+        if (data.message) {
+            self.inProgress = true;
+            self.showStatus = true;
+            self.interval = setTimeout(function () {
+                RiotControl.trigger('bridge_lb_status', self.shipment, self.environment, self.provider);
+            }, self.wait);
+            return;
+        }
+
+        var all,
+            outage,
+            isAlb = false;
+
+        self.raw_provider.id = data.lb_name;
+
+        // if it has load_balancers, then it's an alb
+        if (data.load_balancers) {
+            isAlb = true;
+            all = data.load_balancers.length
+            outage = data.load_balancers
+            .map(function(val) { return {state: val.state.code}})
+            .filter(function (val) { return val.state !== 'active' });
+        } else {
+            all = data.instance_states.length;
             outage = data.instance_states.filter(function (val) { return val.state === 'OutOfService' });
+        }
 
         // Show only when all messages are errors
         self.showStatus = outage.length === all;
@@ -57,17 +89,20 @@
             self.statuses = outage
                 .map(function (val) { return val.state; })
                 .filter(function (val, idx, me) { return me.indexOf(val) === idx; });
-            self.descriptions = outage
-                .map(function (val) { return val.description; })
-                .filter(function (val, idx, me) { return me.indexOf(val) === idx; });
 
-            self.inProgress = self.descriptions.reduce(function (prev, cur) {
-                if (cur.indexOf('in progress') !== -1) {
-                    return true;
-                } else {
-                    return prev;
-                }
-            }, false);
+            if (!isAlb) {
+                self.descriptions = outage
+                    .map(function (val) { return val.description; })
+                    .filter(function (val, idx, me) { return me.indexOf(val) === idx; });
+
+                self.inProgress = self.descriptions.reduce(function (prev, cur) {
+                    if (cur.indexOf('in progress') !== -1) {
+                        return true;
+                    } else {
+                        return prev;
+                    }
+                }, false);
+            }
 
             self.interval = setTimeout(function () {
                 RiotControl.trigger('bridge_lb_status', self.shipment, self.environment, self.provider);
