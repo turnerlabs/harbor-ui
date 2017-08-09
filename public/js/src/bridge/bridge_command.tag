@@ -42,7 +42,7 @@
         <h4>Service</h4>
         <div class="row">
             <div each={ service in shipment.providers.map(getViewServices) }>
-                <p class="col s12">AWS ID: {service.id}</p>
+                <p class="col s12">LB Name: {service.id}</p>
                 <div each={ link in service.links }>
                     <p class="col s2">{ service.provider } ({ link.proto })</p>
                     <p if={ link.linkable} class="col s10"><a href="{ link.href }" target="_blank">{ link.href }</a></p>
@@ -466,7 +466,7 @@
         }
 
         var type = getLbType(self.shipment.containers);
-        if (type === 'alb' || type === 'ingress') {
+        if (type === 'alb' || type === 'alb-ingress') {
             return config.alb_data_dog_link;
         } else {
             return config.data_dog_link;
@@ -821,7 +821,7 @@
         graphs.push(memory);
 
         // once we make alb default we will need to change this logic up a bit.
-        if (type === 'alb' || type === 'ingress') {
+        if (type === 'alb' || type === 'alb-ingress') {
             graphs.push(albLatency);
             graphs.push(albRequestCount);
         } else {
