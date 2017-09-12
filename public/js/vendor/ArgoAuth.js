@@ -7,7 +7,7 @@
         HOST = '',
         AUTH_USER = 'argo_username',
         AUTH_TOKEN = 'argo_token',
-        AUTHURL = 'https://auth.services.dmtio.net';
+        AUTHURL = window.config.AUTHN_URL;
 
     HOST = HOST[0] !== 'localhost' ? hostArray.pop() : '';
     HOST += hostArray.length ? '.' + hostArray.pop() : '';
