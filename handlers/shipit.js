@@ -118,7 +118,7 @@ function createShipment(shipment) {
                 errors[step] = [];
             }
 
-            errors[step].push({error: error.code, body: error.getBody().error});
+            errors[step].push({error: error.status, body: error.message});
         }
     }
 }

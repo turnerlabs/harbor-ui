@@ -11,6 +11,14 @@
         </div>
 
         <div class="argo-tabs">
+            
+            <div class="row">
+                <div class="col s6">
+                    <h5>Contact Email (Required)</h5>
+                    <p><input type="text" name="propertyInput" onblur={ setEmail } value={ email } required placeholder="Enter Email of Contact" /></p>
+                    <span class="tiny-helper">The Distro or Individual Contact of who is responsible for this application</span>
+                </div>
+            </div>
 
             <div class="row">
                 <div class="col s6">
@@ -193,6 +201,16 @@
         }
 
         self.envObj.name = val;
+        self.update();
+
+        RiotControl.trigger('save_state', 'shipment', self.shipment);
+    }
+
+    setEmail(evt) {
+        d('shipyard/info::setEmail');
+        var val = $(evt.target).val().toLowerCase();
+
+        self.main.contact_email = val;
         self.update();
 
         RiotControl.trigger('save_state', 'shipment', self.shipment);

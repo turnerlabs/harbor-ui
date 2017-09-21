@@ -84,6 +84,8 @@
         <container_status></container_status>
 
         <h4>Group</h4>
+        <h5>Contact Email</h5>
+        <input value="{ shipment.parentShipment.contact_email }" onblur="{ saveContact }"></input>
         <p>The group value of your Shipment impacts who is authorized to make edits to all Environments
             within the Shipment.</p>
         <div class="row">
@@ -264,6 +266,16 @@
         url = val.join('/');
         d('bridge/command::pickEnvironment', url);
         riot.route(url);
+    }
+
+    saveContact(evt) {
+        d('bridge/command::saveContact');
+        var val = $(evt.target).val(),
+            url = self.shipment.parentShipment.name;
+
+        self.shipment.parentShipment.contact_email = val;
+        RiotControl.trigger('shipit_update_value', url, {contact_email: val}, 'PUT');
+        self.update();
     }
 
     pickGroup(evt) {
