@@ -55,7 +55,7 @@
                    type="text"
                    value={ plan.repo }
                    onkeyup={ setValue }
-                   placeholder="git@bitbucket.org:vgtf/hello-world.git"
+                   placeholder="git@github.com:turnerlabs/hello-world.git"
                    required/>
 
             <h5>Webhook</h5>
@@ -229,8 +229,11 @@
                 break;
             }
         }
+        
 
-        if (index) {
+        console.log('foo', index)
+
+        if (index !== undefined) {
             self.plan.branches.splice(index, 1);
             self.plan.changed = true;
         }
