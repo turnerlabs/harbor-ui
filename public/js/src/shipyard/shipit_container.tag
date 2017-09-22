@@ -65,6 +65,8 @@
             value: utils.getDefaultPort(),
             ssl_management_type: 'iam',
             enable_proxy_protocol: false,
+            healthcheck_interval: 10,
+            healthcheck_timeout: 3,
             name: "PORT"
         }];
         self.container.vars = [];
