@@ -309,10 +309,10 @@ function AppStore(host, services) {
                 RiotControl.trigger('shipit_update_value_result', result);
             },
             error: function (xhr, status, err) {
-                var error = xhr.responseText || err || 'Failed To Trigger Shipment!';
+                var error = xhr.responseJSON || err || 'Failed To Trigger Shipment!';
                 d('ShipitStore::shipit_update_value_plan::shipit_update_value_error', name, error);
                 RiotControl.trigger('flash_message', 'error', 'Failed to update value ('+ status +')');
-                RiotControl.trigger('shipit_update_value_result', 'error', error);
+                RiotControl.trigger('shipit_update_value_result', 'error', error.message);
             }
         });
     });
