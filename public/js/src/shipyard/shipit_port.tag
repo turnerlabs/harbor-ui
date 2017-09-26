@@ -56,6 +56,34 @@
         </div>
     </div>
     <div class="row">
+        <div class="col s6 input-field">
+            <div class="col s12">
+                Healthcheck Timeout
+                <i class="tiny material-icons"
+                    title="The amount of time that is valid for your healthcheck to return 200.">
+                    info_outline
+                </i>
+            </div>
+            <div class="col s12">
+                <input if="{!onlyread}" type="number" name="healthcheck_timeout" value={ port.healthcheck_timeout } onblur={ setValue } min="1" max="60" required />
+                <input if="{onlyread}" type="number" name="timeout" value={ port.healthcheck_timeout } onblur={ setValue } min="1" max="60" readonly />
+            </div>
+        </div>
+        <div class="col s6 input-field">
+            <div class="col s12">
+                Healthcheck Interval
+                <i class="tiny material-icons"
+                    title="The time to wait in between each healthcheck. Cannot be less than healthcheck_timeout">
+                    info_outline
+                </i>
+            </div>
+            <div class="col s12">
+                <input if="{!onlyread}" type="number" name="healthcheck_interval" value={ port.healthcheck_interval } onblur={ setValue } min="1" max="60" required />
+                <input if="{onlyread}" type="number" name="healthcheck_interval" value={ port.healthcheck_interval } onblur={ setValue } min="1" max="60" readonly />
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col s4 input-field">
             <input if="{!onlyread}" type="checkbox"
                      id="{parent.container.name}_primary_{port.name}"
@@ -268,7 +296,9 @@
             self.parent.parent.update();
             self.port.value = parseInt(self.port.value);
             if (self.port.primary === true && !self.port.healthcheck) {
-                RiotControl.trigger('flash_message', 'Primary Ports must have a healthcheck.', 30000);
+                RiotControl.trigger('flash_message', 'error', 'Primary Ports must have a healthcheck.', 30000);
+            } else if (self.port.healthcheck_interval < self.port.healthcheck_timeout) {
+                RiotControl.trigger('flash_message', 'error', 'Healthcheck Timeout must be less than Interval.', 30000);
             } else {
                 RiotControl.trigger('port_value_changed', self.parent.container, self.port);
             }
