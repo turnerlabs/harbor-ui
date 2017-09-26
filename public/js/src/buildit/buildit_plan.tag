@@ -229,9 +229,6 @@
                 break;
             }
         }
-        
-
-        console.log('foo', index)
 
         if (index !== undefined) {
             self.plan.branches.splice(index, 1);
