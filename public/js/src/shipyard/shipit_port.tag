@@ -302,6 +302,8 @@
             } else {
                 RiotControl.trigger('port_value_changed', self.parent.container, self.port);
             }
+        } else if (input.target.value || name === 'ssl_arn') {
+            input.target.value = input.target.value.trim();
         }
     }
 
