@@ -106,6 +106,12 @@
             <p class="col s2">ERP</p>
             <p class="col s10"><a href="{ view.erp }" target="_blank">{ view.erp }</a></p>
 
+            <p class="col s2">Shipment Status</p>
+            <p class="col s10"><a href=" { view.shipmentStatus }" target="_blank">{ view.shipmentStatus }</a></p>
+
+            <p class="col s2">Shipment Events</p>
+            <p class="col s10"><a href=" { view.shipmentEvents }" target="_blank">{ view.shipmentEvents }</a></p>
+
             <p class="col s2">Monitoring</p>
             <p class="col s10">
                 <input type="checkbox" id="enableMonitoring" checked="{ checked: shipment.enableMonitoring }" onchange="{ updateMonitoring }" />
@@ -575,6 +581,9 @@
         } else {
           RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
           RiotControl.trigger('get_shipment_status', self.shipment);
+
+          view.shipmentStatus = view.shipmentStatus.replace(':barge', barge);
+          view.shipmentEvents = view.shipmentEvents.replace(':barge', barge);
         }
         RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
         self.update();
@@ -613,6 +622,8 @@
             view.shipit = config.shipit_url + 'v1/shipment/' + shipment + '/environment/' + environment;
             view.erp = 'http://erp.services.dmtio.net/products/' + shipment + '/' + environment;
             view.currentRoute = '#bridge/' + shipment + '/' + environment;
+            view.shipmentStatus = 'http://helmit.services.dmtio.net/shipment/status/:barge/' + shipment + '/' + environment;
+            view.shipmentEvents = 'http://helmit.services.dmtio.net/shipment/events/:barge/' + shipment + '/' + environment;
 
             if (tab) {
                self.currentRoute += '/tabs-' + tab;
