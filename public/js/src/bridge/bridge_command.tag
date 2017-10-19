@@ -98,6 +98,9 @@
             </p>
         </div>
 
+        <h4>Annotations</h4>
+        <annotations shipment="{ shipment }"></annotations>
+
         <h4>Info</h4>
         <div class="row">
             <p class="col s2">ShipIt</p>
