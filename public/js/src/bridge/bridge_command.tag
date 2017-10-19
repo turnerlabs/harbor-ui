@@ -625,8 +625,8 @@
             view.shipit = config.shipit_url + 'v1/shipment/' + shipment + '/environment/' + environment;
             view.erp = 'http://erp.services.dmtio.net/products/' + shipment + '/' + environment;
             view.currentRoute = '#bridge/' + shipment + '/' + environment;
-            view.shipmentStatus = 'http://helmit.services.dmtio.net/shipment/status/:barge/' + shipment + '/' + environment;
-            view.shipmentEvents = 'http://helmit.services.dmtio.net/shipment/events/:barge/' + shipment + '/' + environment;
+            view.shipmentStatus = config.helmit_url + '/shipment/status/:barge/' + shipment + '/' + environment;
+            view.shipmentEvents = config.helmit_url + '/shipment/events/:barge/' + shipment + '/' + environment;
 
             if (tab) {
                self.currentRoute += '/tabs-' + tab;
