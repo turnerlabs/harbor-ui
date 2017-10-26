@@ -466,7 +466,7 @@
         }
 
         var type = getLbType(self.shipment.containers);
-        if (type === 'alb' || type === 'alb-ingress') {
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             return config.alb_data_dog_link;
         } else {
             return config.data_dog_link;
