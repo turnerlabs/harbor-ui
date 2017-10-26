@@ -821,7 +821,7 @@
         graphs.push(memory);
 
         // once we make alb default we will need to change this logic up a bit.
-        if (type === 'alb' || type === 'alb-ingress') {
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             graphs.push(albLatency);
             graphs.push(albRequestCount);
         } else {
