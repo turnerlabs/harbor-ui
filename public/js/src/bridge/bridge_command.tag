@@ -294,6 +294,8 @@
         var val = $(evt.target).val();
 
         self.multiplier = val;
+        RiotControl.trigger('save_state', 'multiplier', self.multiplier);
+        updateInterval(self.multiplier);
         self.update();
     }
 
@@ -511,9 +513,6 @@
     self.on('mount', function () {
         d('bridge/command::mount');
 
-        RiotControl.trigger('retrieve_state');
-        RiotControl.trigger('get_containers');
-
         setTimeout(function () {
             $('#command_bridge_tabs').tabs();
             $('.interval-select').select2();
@@ -522,7 +521,6 @@
 
     self.on('update', function () {
         if (routed) {
-           updateInterval(self.multiplier);
            checkDeleteButton();
         }
     });
@@ -581,6 +579,8 @@
         setTimeout(function() {
           $('.group-select').select2();
         }, 100);
+        RiotControl.trigger('retrieve_state');
+        RiotControl.trigger('get_containers');
     });
 
     RiotControl.on('shipit_update_value_result', function (audit_logs) {
@@ -665,8 +665,11 @@
             }, self.interval);
 
         }
-
-
+        
+        if (self.shipment) {
+            var barge = utils.getBarge(self.shipment);
+            RiotControl.trigger('update_logs', barge, self.shipment.parentShipment.name, self.shipment.name);
+        }
     }
 
     function setEnvVars(envVars, vars) {
@@ -866,6 +869,11 @@
         d('shipyard/info::get_user_groups_result', results);
         self.groups = results.groups;
         self.update();
+    });
+
+    RiotControl.on('retrieve_state_result', function (state) {
+        self.multiplier = state.multiplier;
+        updateInterval(self.multiplier);
     });
 
     </script>
