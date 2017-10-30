@@ -820,7 +820,7 @@
         graphs.push(cpu);
         graphs.push(memory);
 
-        // once we make alb default we will need to change this logic up a bit.
+        // if we ever change the default to something else, this will need to be updated...
         if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             graphs.push(albLatency);
             graphs.push(albRequestCount);
