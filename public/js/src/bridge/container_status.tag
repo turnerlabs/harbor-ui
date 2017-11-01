@@ -98,7 +98,9 @@
         var lastRestart;
         self.containers.map(function(container) {
             if (container.id === id && container.lastState && container.lastState.terminated) {
-                lastRestart = container.lastState.terminated.finishedAt;
+                lastRestart = new Date(container.lastState.terminated.finishedAt).toString();
+                newLength = lastRestart.length - 15
+                lastRestart = lastRestart.substring(0, newLength);
             }
         });
         
