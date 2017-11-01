@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "watch": "./node_modules/grunt-cli/bin/grunt",
     "build": "./node_modules/grunt-cli/bin/grunt build",
     "test": "./node_modules/grunt-cli/bin/grunt test"
   },
