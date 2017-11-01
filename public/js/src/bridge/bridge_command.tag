@@ -87,7 +87,7 @@
         <p>The group value of your Shipment impacts who is authorized to make edits to all Environments
             within the Shipment.</p>
         <div class="row">
-            <p class="col s4">{ shipment.parentShipment.group }</p>
+            <p class="col s4"><a href="{ argonaut_url }groups">{ shipment.parentShipment.group }</a></p>
             <p class="col s4 valign"></p>
             <p class="col s4">
                 <select class="group-select" style="width: 100%" onchange="{ pickGroup }">
@@ -241,6 +241,7 @@
     self.barges = config.barges.split(',');
     self.sortRepliacs = utils.sortReplicas;
     self.sortContainers = utils.sortContainers;
+    self.argonaut_url = config.argonaut_url;
     self.disableShipmentBtn = '';
     self.loading = true;
 
