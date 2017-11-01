@@ -468,7 +468,7 @@
         }
 
         var type = getLbType(self.shipment.containers);
-        if (type === 'alb' || type === 'alb-ingress') {
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             return config.alb_data_dog_link;
         } else {
             return config.data_dog_link;
@@ -823,8 +823,8 @@
         graphs.push(cpu);
         graphs.push(memory);
 
-        // once we make alb default we will need to change this logic up a bit.
-        if (type === 'alb' || type === 'alb-ingress') {
+        // if we ever change the default to something else, this will need to be updated...
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             graphs.push(albLatency);
             graphs.push(albRequestCount);
         } else {
