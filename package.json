@@ -1,13 +1,14 @@
 {
   "name": "harbor-ui",
-  "version": "1.21.0",
+  "version": "1.21.1",
   "description": "A portal for creating and viewing Shipments",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "watch": "./node_modules/grunt-cli/bin/grunt",
     "build": "./node_modules/grunt-cli/bin/grunt build",
-    "test": "./node_modules/grunt-cli/bin/grunt test"
+    "test": "./node_modules/grunt-cli/bin/grunt test",
+    "watch": "./node_modules/grunt-cli/bin/grunt watch"
   },
   "repository": {
     "type": "git",
