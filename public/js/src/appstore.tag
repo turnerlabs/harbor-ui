@@ -472,19 +472,21 @@ function AppStore(host, services) {
     });
 
     self.on('bridge_create_shipment', function (shipment) {
-        d('BuildStore::build_create_shipment', shipment);
-
-        shipment.token = ArgoAuth.getToken();
-        shipment.username = ArgoAuth.getUser();
+        d('BuildStore::bridge_create_shipment', shipment);
 
         $.ajax({
-            url: mu('api', 'v1', 'shipments'),
+            url: mu(hosts.shipit, 'v1', 'bulk', 'shipments'),
             method: 'POST',
             dataType: 'json',
             contentType: 'application/json',
             accepts: 'application/json',
             data: JSON.stringify(shipment),
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
             success: function (result, status, xhr) {
+                d('BuildStore::bridge_create_shipment::success', result)
                 RiotControl.trigger('flash_message', 'success', "Saved Shipment");
                 RiotControl.trigger('bridge_create_shipment_result', xhr.status, result);
             },
