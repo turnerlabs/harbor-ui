@@ -35,7 +35,8 @@
   </div>
 
   <script>
-  var self = this;
+  var self = this,
+      d = utils.debug;
 
   setEnvironment(evt) {
       var val = $(evt.target).val().toLowerCase();
@@ -44,16 +45,17 @@
   }
 
   saveShipment(evt) {
-    var convertedShipment = utils.convertShipment(self.shipment);
-    
-    if ((convertedShipment.main.name + '-' + convertedShipment.environment.name).length > 63) {
+    // remove buildToken
+    delete self.shipment.buildToken;
+
+    if ((self.shipment.parentShipment.name + '-' + self.shipment.name).length > 63) {
         RiotControl.trigger('flash_message', 'error', 'The combination of Shipment and Environment as a name is too long. It must be less than 63 characters.', 30000);
     } else {
       // Build Shipment
       self.loading = true;
-      RiotControl.trigger('bridge_create_shipment', convertedShipment);
+      RiotControl.trigger('bridge_create_shipment', self.shipment);
     }
-    
+
     self.errors = null;
     evt.stopPropagation();
   }
@@ -63,12 +65,13 @@
   }
 
   RiotControl.on('bridge_create_shipment_result', function(status, data) {
+        d('bridge/bridge_create_shipment_result', status, data);
 
-        if (status === 200 && data.errors) {
+        if ((status === 200 || status === 201) && data.errors) {
             RiotControl.trigger('flash_message', 'error', "Errors while creating shipment");
         }
 
-        if (status === 200 && !data.errors) {
+        if ((status === 200 || status === 201) && !data.errors) {
             self.closeModal();
             riot.route('#bridge/' + self.shipment.parentShipment.name + '/' + self.shipment.name);
         } else {
