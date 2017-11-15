@@ -507,6 +507,7 @@
             self.disableShipmentBtn = 'disabled';
         }
 
+        RiotControl.trigger('allow_barge_change', self.disableShipmentBtn === '');
         d('bridge/command/overview::checkDeleteButton `%s`', self.disableShipmentBtn);
     }
 
@@ -680,7 +681,7 @@
             }, self.interval);
 
         }
-        
+
         if (self.shipment) {
             var barge = utils.getBarge(self.shipment);
             RiotControl.trigger('update_logs', barge, self.shipment.parentShipment.name, self.shipment.name);

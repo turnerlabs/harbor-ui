@@ -1,14 +1,15 @@
 <bridge_providers>
     <div class="row">
         <div class="col s3">
-            <p><strong>Barge:</strong></p>
-            <p>{ service.barge }</p>
+            <h5>{ service.provider }</h5>
+            <p><strong>Barge:</strong> { service.barge }</p>
         </div>
-        <div class="col s6">
+        <div class="col s7">
             <p><strong>Select New Barge:</strong></p>
             <select_barge provider="{service}" callback="{updateBarge}" info="{false}"></select_barge>
+            <p class="grey-text text-lighten-1">Can only change a barge while the Shipment is not running.</p>
         </div>
-        <div class="col s3">
+        <div class="col s2">
             <p><strong>Replicas:</strong></p>
             <p><input
                 class="replicas provider-{ service.provider }"
