@@ -45,15 +45,17 @@
   }
 
   saveShipment(evt) {
-    // remove buildToken
-    delete self.shipment.buildToken;
+    var clonedShipment = JSON.parse(JSON.stringify(self.shipment));
+    // Remove unwanted properties from copied Shipment
+    delete clonedShipment.buildToken;
+    delete clonedShipment.audit_logs;
 
-    if ((self.shipment.parentShipment.name + '-' + self.shipment.name).length > 63) {
+    if ((clonedShipment.parentShipment.name + '-' + clonedShipment.name).length > 63) {
         RiotControl.trigger('flash_message', 'error', 'The combination of Shipment and Environment as a name is too long. It must be less than 63 characters.', 30000);
     } else {
       // Build Shipment
       self.loading = true;
-      RiotControl.trigger('bridge_create_shipment', self.shipment);
+      RiotControl.trigger('bridge_create_shipment', clonedShipment);
     }
 
     self.errors = null;
