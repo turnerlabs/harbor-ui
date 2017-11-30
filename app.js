@@ -33,14 +33,14 @@ if (!global.rssCache) {
     setInterval(commonHandler.fetchFeed, rssTtl);
 }
 
-app.use(function (req, res, next)) {
+app.use(function (req, res, next) {
     if (process.env.REDIRECT_HTTP_TO_HTTPS) {
         if (!req.secure) {
             return res.redirect(['https://', req.get('Host'), req.url].join(''));
         }
     }
     return next();
-}
+});
 
 app.use(function (req, res, next) {
     res.req.count = (new Date()).getTime();
