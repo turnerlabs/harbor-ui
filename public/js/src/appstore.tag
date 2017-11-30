@@ -879,6 +879,95 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('create_annotation', function (shipment, environment, annotation) {
+        d('BridgeStore::create_annotation', shipment, environment, annotation);
+
+        $.ajax({
+            method: 'POST',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment, 'environment', environment, 'annotations'),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            data: JSON.stringify(annotation),
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('BridgeStore::create_annotation::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Created Annotation');
+
+                RiotControl.trigger('annotations_modified', result.annotations);
+            },
+            error: function (xhr, status, err) {
+                var error = xhr.responseText || err;
+                d('BridgeStore::create_annotation::error', error);
+                RiotControl.trigger('flash_message', 'error', error);
+
+                RiotControl.trigger('annotations_modified', false);
+            }
+        });
+    });
+
+    self.on('update_annotation', function (shipment, environment, name, annotation) {
+        d('BridgeStore::update_annotation', shipment, environment, name, annotation);
+
+        $.ajax({
+            method: 'PUT',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment, 'environment', environment, 'annotation', name),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            data: JSON.stringify(annotation),
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('BridgeStore::update_annotation::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Updated Annotation');
+
+                RiotControl.trigger('annotations_modified', result.annotations);
+            },
+            error: function (xhr, status, err) {
+                var error = xhr.responseText || err;
+                d('BridgeStore::update_annotation::error', error);
+                RiotControl.trigger('flash_message', 'error', error);
+
+                RiotControl.trigger('annotations_modified', false);
+            }
+        });
+    });
+
+    self.on('delete_annotation', function (shipment, environment, name) {
+        d('BridgeStore::delete_annotation', shipment, environment, name);
+
+        $.ajax({
+            method: 'DELETE',
+            url: mu(hosts.shipit, 'v1', 'shipment', shipment, 'environment', environment, 'annotation', name),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            headers: {
+                'x-username': ArgoAuth.getUser(),
+                'x-token': ArgoAuth.getToken()
+            },
+            success: function (result, status, xhr) {
+                d('BridgeStore::delete_annotation::success', result);
+                RiotControl.trigger('flash_message', 'success', 'Delete Annotation');
+
+                RiotControl.trigger('annotations_modified', result.annotations);
+            },
+            error: function (xhr, status, err) {
+                var error = xhr.responseText || err;
+                d('BridgeStore::delete_annotation::error', error);
+                RiotControl.trigger('flash_message', 'error', error);
+
+                RiotControl.trigger('annotations_modified', false);
+            }
+        });
+    });
+
     self.on('create_container', function (shipment, environment, container, port) {
         d("BridgeStore::create_container", shipment, environment, container, port)
 

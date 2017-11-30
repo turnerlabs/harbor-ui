@@ -87,7 +87,7 @@
         <p>The group value of your Shipment impacts who is authorized to make edits to all Environments
             within the Shipment.</p>
         <div class="row">
-            <p class="col s4">{ shipment.parentShipment.group }</p>
+            <p class="col s4"><a href="{ argonaut_url }groups">{ shipment.parentShipment.group }</a></p>
             <p class="col s4 valign"></p>
             <p class="col s4">
                 <select class="group-select" style="width: 100%" onchange="{ pickGroup }">
@@ -98,6 +98,9 @@
             </p>
         </div>
 
+        <h4>Annotations</h4>
+        <annotations shipment="{ shipment }"></annotations>
+
         <h4>Info</h4>
         <div class="row">
             <p class="col s2">ShipIt</p>
@@ -105,6 +108,12 @@
 
             <p class="col s2">ERP</p>
             <p class="col s10"><a href="{ view.erp }" target="_blank">{ view.erp }</a></p>
+
+            <p class="col s2">Shipment Status</p>
+            <p class="col s10"><a href=" { view.shipmentStatus }" target="_blank">{ view.shipmentStatus }</a></p>
+
+            <p class="col s2">Shipment Events</p>
+            <p class="col s10"><a href=" { view.shipmentEvents }" target="_blank">{ view.shipmentEvents }</a></p>
 
             <p class="col s2">Monitoring</p>
             <p class="col s10">
@@ -241,6 +250,7 @@
     self.barges = config.barges.split(',');
     self.sortRepliacs = utils.sortReplicas;
     self.sortContainers = utils.sortContainers;
+    self.argonaut_url = config.argonaut_url;
     self.disableShipmentBtn = '';
     self.loading = true;
 
@@ -294,6 +304,8 @@
         var val = $(evt.target).val();
 
         self.multiplier = val;
+        RiotControl.trigger('save_state', 'multiplier', self.multiplier);
+        updateInterval(self.multiplier);
         self.update();
     }
 
@@ -466,7 +478,7 @@
         }
 
         var type = getLbType(self.shipment.containers);
-        if (type === 'alb' || type === 'alb-ingress') {
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             return config.alb_data_dog_link;
         } else {
             return config.data_dog_link;
@@ -495,6 +507,7 @@
             self.disableShipmentBtn = 'disabled';
         }
 
+        RiotControl.trigger('allow_barge_change', self.disableShipmentBtn === '');
         d('bridge/command/overview::checkDeleteButton `%s`', self.disableShipmentBtn);
     }
 
@@ -511,9 +524,6 @@
     self.on('mount', function () {
         d('bridge/command::mount');
 
-        RiotControl.trigger('retrieve_state');
-        RiotControl.trigger('get_containers');
-
         setTimeout(function () {
             $('#command_bridge_tabs').tabs();
             $('.interval-select').select2();
@@ -522,7 +532,6 @@
 
     self.on('update', function () {
         if (routed) {
-           updateInterval(self.multiplier);
            checkDeleteButton();
         }
     });
@@ -575,12 +584,17 @@
         } else {
           RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
           RiotControl.trigger('get_shipment_status', self.shipment);
+
+          view.shipmentStatus = view.shipmentStatus.replace(':barge', barge);
+          view.shipmentEvents = view.shipmentEvents.replace(':barge', barge);
         }
         RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
         self.update();
         setTimeout(function() {
           $('.group-select').select2();
         }, 100);
+        RiotControl.trigger('retrieve_state');
+        RiotControl.trigger('get_containers');
     });
 
     RiotControl.on('shipit_update_value_result', function (audit_logs) {
@@ -613,6 +627,8 @@
             view.shipit = config.shipit_url + 'v1/shipment/' + shipment + '/environment/' + environment;
             view.erp = 'http://erp.services.dmtio.net/products/' + shipment + '/' + environment;
             view.currentRoute = '#bridge/' + shipment + '/' + environment;
+            view.shipmentStatus = config.helmit_url + '/shipment/status/:barge/' + shipment + '/' + environment;
+            view.shipmentEvents = config.helmit_url + '/shipment/events/:barge/' + shipment + '/' + environment;
 
             if (tab) {
                self.currentRoute += '/tabs-' + tab;
@@ -666,7 +682,10 @@
 
         }
 
-
+        if (self.shipment) {
+            var barge = utils.getBarge(self.shipment);
+            RiotControl.trigger('update_logs', barge, self.shipment.parentShipment.name, self.shipment.name);
+        }
     }
 
     function setEnvVars(envVars, vars) {
@@ -820,8 +839,8 @@
         graphs.push(cpu);
         graphs.push(memory);
 
-        // once we make alb default we will need to change this logic up a bit.
-        if (type === 'alb' || type === 'alb-ingress') {
+        // if we ever change the default to something else, this will need to be updated...
+        if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
             graphs.push(albLatency);
             graphs.push(albRequestCount);
         } else {
@@ -866,6 +885,11 @@
         d('shipyard/info::get_user_groups_result', results);
         self.groups = results.groups;
         self.update();
+    });
+
+    RiotControl.on('retrieve_state_result', function (state) {
+        self.multiplier = state.multiplier;
+        updateInterval(self.multiplier);
     });
 
     </script>
