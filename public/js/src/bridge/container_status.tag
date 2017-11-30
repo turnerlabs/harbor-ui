@@ -19,6 +19,7 @@
                     <th>Image</th>
                     <th>State</th>
                     <th>Restarts</th>
+                    <th>Last Restart</th>
                 </tr>
             </thead>
 
@@ -31,6 +32,7 @@
                     <td title="{ container.image }">{ container.imageDisplay }</td>
                     <td class="{ getColor(container.state )}">{ container.state }</td>
                     <td class="{ checkRestarts(container.restartCount) } center">{ container.restartCount }</td>
+                    <td center">{ getLastRestarts(container.id) }</td>
                 </tr>
             </tbody>
         </table>
@@ -92,6 +94,17 @@
         return clr + '-text';
     }
 
+    getLastRestarts(id) {
+        var lastRestart;
+        self.containers.map(function(container) {
+            if (container.id === id && container.lastState && container.lastState.terminated) {
+                lastRestart = new Date(container.lastState.terminated.finishedAt).toLocaleString();
+            }
+        });
+        
+        return lastRestart || 'No Restarts';
+    }
+
     RiotControl.on('update_logs_result', function (data) {
         d('bridge/container_status::update_logs_result', data);
 
@@ -106,6 +119,12 @@
         }
 
         self.helm = data;
+        self.update();
+    });
+
+    RiotControl.on('shipment_status_result', function (data) {
+        d('bridge_shipment_status::shipment_status_result', data);
+        self.containers = data.status.containers;
         self.update();
     });
     </script>
