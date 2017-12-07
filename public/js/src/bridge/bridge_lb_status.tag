@@ -39,9 +39,9 @@
 
         self.environment = obj.name;
         self.shipment    = obj.parentShipment.name;
-        self.provider    = obj.providers[provider].name;
-        self.replicas    = obj.providers[provider].replicas;
-        self.raw_provider = obj.providers[provider];
+        self.provider    = obj.providers[provider] ? obj.providers[provider].name : '';
+        self.replicas    = obj.providers[provider] ? obj.providers[provider].replicas : 0;
+        self.raw_provider = obj.providers[provider] ? obj.providers[provider] : {};
         self.started     = true;
     }
 

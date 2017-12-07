@@ -183,9 +183,9 @@
                   <div class="col s2 input-field">
                     <input class="with-ga"
                            if="{!onlyread}"
-                           type="radio" 
-                           name="ssl_management_type_{port.name}" 
-                           value="acm" 
+                           type="radio"
+                           name="ssl_management_type_{port.name}"
+                           value="acm"
                            onchange="{setValue}"
                            checked="{checked: port.ssl_management_type === 'acm'}"
                            {disabled: onlyread}
@@ -193,9 +193,9 @@
                      <input class="with-ga"
                             if="{onlyread}"
                             disabled
-                            type="radio" 
-                            name="ssl_management_type_{port.name}" 
-                            value="acm" 
+                            type="radio"
+                            name="ssl_management_type_{port.name}"
+                            value="acm"
                             onchange="{setValue}"
                             checked="{checked: port.ssl_management_type === 'acm'}"
                             {disabled: onlyread}
@@ -207,21 +207,21 @@
                     </i>
                   </div>
                   <div class="col s2 input-field">
-                    <input class="with-ga" 
+                    <input class="with-ga"
                            if="{!onlyread}"
-                           type="radio" 
-                           name="ssl_management_type_{port.name}" 
-                           value="iam" 
-                           onchange="{setValue}" 
+                           type="radio"
+                           name="ssl_management_type_{port.name}"
+                           value="iam"
+                           onchange="{setValue}"
                            checked="{checked: port.ssl_management_type === 'iam'}"
                            id="{parent.container.name}_iam_radio_{port.name}">
-                     <input class="with-ga" 
+                     <input class="with-ga"
                             if="{onlyread}"
                             disabled
-                            type="radio" 
-                            name="ssl_management_type_{port.name}" 
-                            value="iam" 
-                            onchange="{setValue}" 
+                            type="radio"
+                            name="ssl_management_type_{port.name}"
+                            value="iam"
+                            onchange="{setValue}"
                             checked="{checked: port.ssl_management_type === 'iam'}"
                             id="{parent.container.name}_iam_radio_{port.name}">
                     <label for="{parent.container.name}_iam_radio_{port.name}">IAM</label>
@@ -392,7 +392,7 @@
         textarea {
             color: black;
         }
-        
+
         .type-i {
             margin-right: -16px;
         }
