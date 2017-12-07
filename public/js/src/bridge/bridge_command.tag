@@ -159,14 +159,7 @@
     </div>
 
     <div id="tabs-audit">
-        <div class="row">
-            <div if="{ loading === false && !view.helm.error }" class="col s12" each="{ log in shipment.audit_logs }">
-                <audit_log log="{log}"></audit_log>
-            </div>
-            <div if="{ shipment.audit_logs.length == 0 }">
-                <h4>There are no logs for this Shipment.</h4>
-            </div>
-        </div>
+        <audit_log logs="{shipment.audit_logs}"></audit_log>
     </div>
 
     <div id="tabs-logs">
@@ -215,17 +208,16 @@
                 </span>
             </div>
             <div class="col s6 right-align">
-                Visit your
-                    <a target="_blank" href="{getDataDogLink()}&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}">
-                        DataDog Dashboard</a>.
+                Visit your <a target="_blank" href="{ getDataDogLink() }">DataDog Dashboard</a>.
             </div>
         </div>
         <div class="row" if="{ view.renderGraphs }">
-            <div class="col s6 graphs center-align" each="{ graph in view.datadog_data[view.timeframe] }">
+            <div class="col s6 graphs center-align" if="{ view.datadog_data }" each="{ graph in view.datadog_data[view.timeframe] }">
                 <raw-html html="{ graph.html }" timeframe="{ view.timeframe }"></raw-html>
             </div>
             <div if="{ !view.datadog_data }">
                 <h4>There are no graphs to view.</h4>
+                <h5 class="red-text">ERROR: { datadog_data_error }</h>
             </div>
         </div>
     </div>
@@ -303,10 +295,7 @@
     updateMultiplier(evt) {
         var val = $(evt.target).val();
 
-        self.multiplier = val;
-        RiotControl.trigger('save_state', 'multiplier', self.multiplier);
-        updateInterval(self.multiplier);
-        self.update();
+        RiotControl.trigger('save_interval_multiplier', val);
     }
 
     updateReplicas(evt) {
@@ -471,7 +460,10 @@
         }
     }
 
+    // { getDataDogLink() }&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}
     getDataDogLink(evt) {
+        var fullUrl = '%host%&tpl_var_environment={shipment.name}&tpl_var_shipment={shipment.parentShipment.name}-{shipment.name}&tpl_var_product={shipment.parentShipment.name}&tpl_var_namespace={shipment.parentShipment.name}-{shipment.name}',
+            host = '';
 
         if (!self.shipment || !self.shipment.containers) {
             return;
@@ -479,10 +471,15 @@
 
         var type = getLbType(self.shipment.containers);
         if (type === 'alb' || type === 'alb-ingress' || type === 'default') {
-            return config.alb_data_dog_link;
+            host = config.alb_data_dog_link;
         } else {
-            return config.data_dog_link;
+            host = config.data_dog_link;
         }
+
+        return fullUrl
+            .replace('%host%', host)
+            .replace(/\{shipment\.name\}/g, self.shipment.name)
+            .replace(/\{shipment\.parentShipment\.name\}/g, self.shipment.parentShipment.name);
     }
 
     function checkDeleteButton() {
@@ -593,7 +590,7 @@
         setTimeout(function() {
           $('.group-select').select2();
         }, 100);
-        RiotControl.trigger('retrieve_state');
+        RiotControl.trigger('retrieve_interval_multiplier');
         RiotControl.trigger('get_containers');
     });
 
@@ -602,21 +599,22 @@
         RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
     });
 
-    RiotControl.on('get_shipment_audit_logs_result', function (audit_logs) {
-        d('bridge/command::get_shipment_details_result', audit_logs);
-        if (self.shipment) {
-            self.shipment.audit_logs = audit_logs;
-        }
-        self.update();
-    });
+    RiotControl.on('datadog_create_embed_result', function(data, error) {
+        d('datadog_create_embed_result', data, error);
 
-    RiotControl.on('datadog_create_embed_result', function(data) {
-        d('datadog_create_embed_result', data);
         view.datadogLoading = false;
-        if (!view.datadog_data[data.timeframe]) {
-            view.datadog_data[data.timeframe] = [];
+        if (error) {
+            // show error here
+            view.datadog_data = '';
+            self.datadog_data_error = error.message;
         }
-        view.datadog_data[data.timeframe].push(data);
+        else {
+            if (!view.datadog_data[data.timeframe]) {
+                view.datadog_data[data.timeframe] = [];
+            }
+            view.datadog_data[data.timeframe].push(data);
+        }
+
         self.update();
     });
 
@@ -882,15 +880,23 @@
     });
 
     RiotControl.on('get_user_groups_result', function (results) {
-        d('shipyard/info::get_user_groups_result', results);
+        d('bridge/command::get_user_groups_result', results);
         self.groups = results.groups;
         self.update();
     });
 
+
+    RiotControl.on('interval_multiplier_result', function (val) {
+        self.multiplier = val;
+        updateInterval(val);
+    });
+    /*
     RiotControl.on('retrieve_state_result', function (state) {
+        d('bridge/command::retrieve_state_result', state)
         self.multiplier = state.multiplier;
         updateInterval(self.multiplier);
     });
+    */
 
     </script>
 

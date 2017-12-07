@@ -30,6 +30,11 @@
             d('bridge::riot.route', type, shipment, environment, tab);
             var page = 'shipments';
 
+            // Stop container status calls
+            // Stop log fetching calls
+            // if Tab == logs, start log fetching
+            // if Tab == overview or empty, start container status fetching
+
             if (tab === 'logs') {
                 setTimeout(function () {
                     $('.interval-select').select2();

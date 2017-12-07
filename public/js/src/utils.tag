@@ -15,8 +15,8 @@ var utils = (function () {
     }
 
     function debug() {
-        if (self.host.indexOf('localhost') !== -1 || self.host.indexOf('10.') !== -1) {
-            arguments[0] = 'debug: ' + arguments[0];
+        if (config.showDebug || self.host.indexOf('localhost') !== -1 || self.host.indexOf('10.') !== -1) {
+            arguments[0] = ']> ' + arguments[0];
             console.log.apply(console, arguments);
         }
     }
