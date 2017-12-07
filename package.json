@@ -1,6 +1,6 @@
 {
   "name": "harbor-ui",
-  "version": "1.22.1",
+  "version": "1.22.2",
   "description": "A portal for creating and viewing Shipments",
   "main": "app.js",
   "scripts": {

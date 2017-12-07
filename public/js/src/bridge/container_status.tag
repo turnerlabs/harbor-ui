@@ -4,7 +4,7 @@
       <div class="card red">
           <div class="card-content black-text">
               <span class="card-title">Error</span>
-              <p>There was an error fetching contianer data.</p>
+              <p>There was an error fetching container data.</p>
           </div>
       </div>
     </div>
@@ -32,7 +32,7 @@
                     <td title="{ container.image }">{ container.imageDisplay }</td>
                     <td class="{ getColor(container.state )}">{ container.state }</td>
                     <td class="{ checkRestarts(container.restartCount) } center">{ container.restartCount }</td>
-                    <td center">{ getLastRestarts(container.id) }</td>
+                    <td center>{ getLastRestarts(container.id) }</td>
                 </tr>
             </tbody>
         </table>
@@ -101,7 +101,7 @@
                 lastRestart = new Date(container.lastState.terminated.finishedAt).toLocaleString();
             }
         });
-        
+
         return lastRestart || 'No Restarts';
     }
 

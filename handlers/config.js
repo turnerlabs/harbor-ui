@@ -3,6 +3,7 @@ var pkgConfig = require('../package.json'),
     mustache = require('mustache'),
     CONFIG_DATA = {
         env: process.env.ENVIRONMENT || 'local',
+        showDebug: process.env.SHOW_DEBUG || false,
         argonaut_url: process.env.ARGONAUT_URL || 'https://argonaut.turner.com/',
         catalogit_url: process.env.CATALOGIT_URL || 'http://catalogit.services.dmtio.net/v1/',
         trigger_url: process.env.TRIGGER_URL || 'http://trigger.services.dmtio.net/',

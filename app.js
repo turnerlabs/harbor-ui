@@ -172,7 +172,14 @@ app.post('/api/v1/datadog', function(req, res) {
     log.info('creating datadog embed', req.body.title);
     datadogHandler.createEmbed(data, function(error, data) {
         if (error) {
-            res.status(500).json(error);
+            var code = 500;
+            error = error.join(', ');
+
+            if (error.indexOf('Invalid API key') !== -1) {
+                code = 400;
+            }
+
+            res.status(code).json({ message: error });
             return;
         }
 

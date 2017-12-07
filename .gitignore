@@ -7,3 +7,6 @@ mss-docker-build-scripts
 .dogapirc
 docker-compose.yml
 harbor-compose.yml
+prod.env
+dev.env
+hidden.env

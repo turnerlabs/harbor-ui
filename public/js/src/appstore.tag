@@ -115,6 +115,19 @@ function AppStore(host, services) {
         state = {};
     });
 
+    self.on('save_interval_multiplier', function (num) {
+        localStorage.setItem('harbor_interval_multiplier', num);
+
+        RiotControl.trigger('interval_multiplier_result', num)
+    });
+
+    self.on('retrieve_interval_multiplier', function () {
+        var num = localStorage.getItem('harbor_interval_multiplier') || config.updateInterval;
+        d('StateStore::retrieve_interval_multiplier', num)
+
+        RiotControl.trigger('interval_multiplier_result', num);
+    });
+
     /* APIStore */
 
     self.on('get_containers', function () {
@@ -843,10 +856,10 @@ function AppStore(host, services) {
             success: function (result, status, xhr) {
                 d('datadog::datadog_create_embed:success');
                 result.timeframe = data.timeframe;
-                RiotControl.trigger('datadog_create_embed_result', result);
+                RiotControl.trigger('datadog_create_embed_result', result, null);
             },
             error: function (xhr, status, err) {
-                var error = xhr.responseText || err;
+                var error = xhr.responseJSON || xhr.responseText || err;
                 d('datadog::datadog_create_embed:error', error);
                 RiotControl.trigger('datadog_create_embed_result', {}, error);
             }

@@ -91,7 +91,7 @@
         });
 
         riot.route(function (route, type, env) {
-            d('app::route', route, type, env);
+            d('app::route(%s) type(%s) env(%s)', route, type, env);
             RiotControl.trigger('app_changed', route, type, env);
             self.route = route.replace('#', '');
             ArgoAuth.isAuthenticated(authCallback);
