@@ -52,6 +52,10 @@
         d = utils.debug;
 
     self.helm;
+    self.barge;
+    self.route;
+    self.interval;
+    self.loadState;
     self.sortReplicas    = utils.sortReplicas;
     self.sortContainers  = utils.sortContainers;
 
@@ -105,11 +109,54 @@
         return lastRestart || 'No Restarts';
     }
 
-    RiotControl.on('update_logs_result', function (data) {
-        d('bridge/container_status::update_logs_result', data);
+    RiotControl.on('get_shipment_model_result', function (caller, shipment) {
+        if (caller === 'container_status') {
+            d('bridge/container_status::get_shipment_model_result', self.route, shipment);
+            if (self.route && self.route.shipment && self.route.environment && self.loadState === 'gettingShipmentInfo') {
+                self.barge = utils.getBarge(shipment);
+                self.loadState = 'loading';
 
-        if (data.replicas) {
-            data.replicas = data.replicas.map(function (replica) {
+                // Fire off for shipment status immediately
+                RiotControl.trigger('get_container_status', self.barge, self.route.shipment, self.route.environment);
+
+                // Setup interval for another container status
+                if (self.barge) {
+                    self.interval = setInterval(function () {
+                        RiotControl.trigger('get_container_status', self.barge, self.route.shipment, self.route.environment);
+                    }, 5 * 1000);
+                }
+            }
+        }
+    });
+
+    RiotControl.on('toggle_container_status_interval', function (toggle, route) {
+        d('bridge/container_status::toggle_container_status_interval', toggle, route);
+        self.route = route;
+
+        if (toggle && !self.loadState) {
+            d('bridge/container_status::toggle_container_status_interval::toggle ON', route.shipment, route.environment);
+            self.loadState = 'gettingShipmentInfo';
+            // Turn on the container status interval
+            RiotControl.trigger('get_shipment_model', 'container_status', route.shipment, route.environment);
+        }
+        else if (!toggle && self.loadState) {
+            d('bridge/container_status::toggle_container_status_interval::toggle OFF');
+            // Turn off the container status interval
+            self.helm = null;
+            self.barge = null;
+            self.loadState = null;
+            clearInterval(self.interval);
+            self.update();
+        }
+    });
+
+    RiotControl.on('get_container_status_result', function (helm) {
+        d('bridge/container_status::get_container_status_result', helm);
+
+        self.loadState = 'loaded';
+
+        if (helm.replicas) {
+            helm.replicas = helm.replicas.map(function (replica) {
                 replica.containers = replica.containers.map(function (container) {
                     container.imageDisplay = container.image.replace(/[\w\S]+\//, '');
                     return container;
@@ -118,13 +165,7 @@
             });
         }
 
-        self.helm = data;
-        self.update();
-    });
-
-    RiotControl.on('shipment_status_result', function (data) {
-        d('bridge_shipment_status::shipment_status_result', data);
-        self.containers = data.status.containers;
+        self.helm = helm;
         self.update();
     });
     </script>

@@ -1,6 +1,6 @@
 <audit_log>
     <div class="row">
-        <div class="col s12" each="{ log in logs }">
+        <div if="{ logs.length }" class="col s12" each="{ log in logs }">
             <div class="log">
                 Timestamp: {log.timestamp}<br/>
                 User: {log.user}<br/>
@@ -33,8 +33,11 @@
                 </div>
             </div>
         </div>
-        <div if="{ shipment.audit_logs.length == 0 }">
-            <h4>There are no logs for this Shipment.</h4>
+        <div if="{ loadState === 'loaded' && logs.length === 0 }">
+            <h5>There are no logs for this Shipment.</h5>
+        </div>
+        <div if="{ !loadState || loadState === 'loading' }">
+            <loading_elm></loading_elm>
         </div>
     </div>
 
@@ -46,11 +49,15 @@
         updated = false;
 
     self.logs = [];
+    self.loadState;
+    self.auditInterval;
+    self.auditDelay = 1000 * 30; // 30 seconds
 
     RiotControl.on('get_shipment_audit_logs_result', function (audit_logs) {
         d('bridge/audit_log::get_shipment_audit_logs_result', audit_logs.length);
 
         if (audit_logs && audit_logs.length) {
+            self.loadState = 'loaded';
             self.logs = audit_logs.map(function (log) {
                 var diff = log.diff,
                     new_log = {
@@ -87,6 +94,33 @@
 
                 return new_log;
             });
+
+            self.update();
+        }
+    });
+
+    RiotControl.on('toggle_audit_logs_interval', function (toggle, route) {
+        d('bridge/audit_log::toggle_audit_logs_interval', toggle, route);
+        self.route = route;
+
+        if (toggle && !self.loadState) {
+            // turn on
+            self.loadState = 'loading';
+            // Call immediately
+            RiotControl.trigger('get_shipment_audit_logs', route.shipment, route.environment);
+
+            self.auditInterval = setInterval(function () {
+                RiotControl.trigger('get_shipment_audit_logs', route.shipment, route.environment);
+            }, self.auditDelay);
+        }
+        else if (!toggle && self.loadState) {
+            // turn off
+            self.logs = [];
+            self.loadState = null;
+            self.route = null;
+            clearInterval(self.auditInterval);
+
+            self.update();
         }
     });
     </script>

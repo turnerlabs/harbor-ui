@@ -19,6 +19,52 @@
 
     self.page;
 
+    function toggleBridgeIntervals(type, shipment, environment, tab) {
+        if (type === 'bridge') {
+            // only toggle based on tab
+            if ((typeof tab === 'undefined' || tab === 'overview') && environment) {
+                // toggle off logging
+                RiotControl.trigger('toggle_logging_interval', false);
+                // toggle on container status
+                RiotControl.trigger('toggle_container_status_interval', true, { shipment: shipment, environment: environment, tab: tab });
+                // toggle off audit logs
+                RiotControl.trigger('toggle_audit_logs_interval', false);
+            }
+            else if (tab === 'logs') {
+                // toggle on logging
+                RiotControl.trigger('toggle_logging_interval', true, { shipment: shipment, environment: environment, tab: tab });
+                // toggle off container status
+                RiotControl.trigger('toggle_container_status_interval', false);
+                // toggle off audit logs
+                RiotControl.trigger('toggle_audit_logs_interval', false);
+            }
+            else if (tab === 'audit') {
+                // toggle on logging
+                RiotControl.trigger('toggle_logging_interval', false);
+                // toggle off container status
+                RiotControl.trigger('toggle_container_status_interval', false);
+                // toggle off audit logs
+                RiotControl.trigger('toggle_audit_logs_interval', true, { shipment: shipment, environment: environment, tab: tab });
+            }
+            else {
+                // toggle off logging
+                RiotControl.trigger('toggle_logging_interval', false);
+                // toggle off container status
+                RiotControl.trigger('toggle_container_status_interval', false);
+                // toggle off audit logs
+                RiotControl.trigger('toggle_audit_logs_interval', false);
+            }
+        }
+        else {
+            // toggle off logging
+            RiotControl.trigger('toggle_logging_interval', false);
+            // toggle off container status
+            RiotControl.trigger('toggle_container_status_interval', false);
+            // toggle off audit logs
+            RiotControl.trigger('toggle_audit_logs_interval', false);
+        }
+    }
+
     RiotControl.trigger('menu_register', 'Command Bridge', 'bridge');
 
     RiotControl.on('command_bridge_enabled', function (page) {
@@ -26,14 +72,11 @@
     });
 
     riot.route(function (type, shipment, environment, tab) {
+        toggleBridgeIntervals(type, shipment, environment, tab);
+
         if (type === 'bridge') {
             d('bridge::riot.route', type, shipment, environment, tab);
             var page = 'shipments';
-
-            // Stop container status calls
-            // Stop log fetching calls
-            // if Tab == logs, start log fetching
-            // if Tab == overview or empty, start container status fetching
 
             if (tab === 'logs') {
                 setTimeout(function () {

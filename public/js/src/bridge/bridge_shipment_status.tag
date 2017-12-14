@@ -136,7 +136,7 @@
         self.events = data.events;
         self.update();
 
-         $('#events-modal').openModal();
+        $('#events-modal').openModal();
         $('#view-shipment-status-events-btn').removeClass('disabled');
     });
     </script>
