@@ -66,10 +66,10 @@
         </div>
 
         <h4>Provider Information</h4>
-        <div each={ service in shipment.providers.map(getViewServices) }>
+        <div each="{ service in shipment.providers.map(getViewServices) }">
             <bridge_providers shipment="{ parent.shipment }" service="{ service }"></bridge_providers>
         </div>
-        <div if={ shipment.providers.length < 1 }>
+        <div if="{ shipment.providers.length < 1 }">
             <div class="card amber">
                 <div class="card-content black-text">
                     <span class="card-title">Warning</span>
