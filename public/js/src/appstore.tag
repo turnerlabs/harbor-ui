@@ -117,13 +117,14 @@ function AppStore(host, services) {
 
     self.on('save_interval_multiplier', function (num) {
         localStorage.setItem('harbor_interval_multiplier', num);
+        d('StateStore::save_interval_multiplier', num);
 
-        RiotControl.trigger('interval_multiplier_result', num)
+        RiotControl.trigger('interval_multiplier_result', num);
     });
 
     self.on('retrieve_interval_multiplier', function () {
         var num = localStorage.getItem('harbor_interval_multiplier') || config.updateInterval;
-        d('StateStore::retrieve_interval_multiplier', num)
+        d('StateStore::retrieve_interval_multiplier', num);
 
         RiotControl.trigger('interval_multiplier_result', num);
     });
@@ -278,7 +279,7 @@ function AppStore(host, services) {
         d('APIStore::get_helm_details', customer, shipment, environment);
 
         $.ajax({
-            url: mu(hosts.helmit, 'harbor', customer, shipment, environment),
+            url: mu(hosts.helmit, 'v2', 'harbor', customer, shipment, environment),
             dataType: 'json',
             success: function (result) {
                 RiotControl.trigger('get_helm_details_result', result);
@@ -356,11 +357,28 @@ function AppStore(host, services) {
         });
     });
 
-    self.on('update_logs', function (customer, shipment, environment) {
-        d('APIStore::update_logs', customer, shipment, environment);
+    self.on('get_container_status', function (barge, shipment, environment) {
+        d('APIStore::get_container_status', barge, shipment, environment);
 
         $.ajax({
-            url: mu(hosts.helmit, 'harbor', customer, shipment, environment) + '?' + new Date().getTime(),
+            url: mu(hosts.helmit, 'v2', 'harbor', barge, shipment, environment) + '?' + new Date().getTime(),
+            dataType: 'json',
+            success: function (result) {
+                RiotControl.trigger('get_container_status_result', result);
+            },
+            error: function (xhr, status, err) {
+                var error = { replicas: [], error: xhr.responseJson };
+                d('APIStore::get_container_status::error', error);
+                RiotControl.trigger('get_container_status_result', error);
+            }
+        });
+    });
+
+    self.on('update_logs', function (barge, shipment, environment) {
+        d('APIStore::update_logs', barge, shipment, environment);
+
+        $.ajax({
+            url: mu(hosts.helmit, 'v2', 'harbor', 'logs', barge, shipment, environment) + '?' + new Date().getTime(),
             dataType: 'json',
             success: function (result) {
                 RiotControl.trigger('update_logs_result', result);

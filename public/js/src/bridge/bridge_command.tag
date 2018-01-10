@@ -42,7 +42,9 @@
         <h4>Service</h4>
         <div class="row">
             <div each={ service in shipment.providers.map(getViewServices) }>
-                <p class="col s12">LB Name: {service.id}</p>
+                <p class="col s2">LB Name:</p>
+                <p if="{ service.id }" class="col s10">{ service.id }</p>
+                <p if="{ !service.id }" class="col s10">…</p>
                 <div each={ link in service.links }>
                     <p class="col s2">{ service.provider } ({ link.proto })</p>
                     <p if={ link.linkable} class="col s10"><a href="{ link.href }" target="_blank">{ link.href }</a></p>
@@ -66,10 +68,10 @@
         </div>
 
         <h4>Provider Information</h4>
-        <div each={ service in shipment.providers.map(getViewServices) }>
+        <div each="{ service in shipment.providers.map(getViewServices) }">
             <bridge_providers shipment="{ parent.shipment }" service="{ service }"></bridge_providers>
         </div>
-        <div if={ shipment.providers.length < 1 }>
+        <div if="{ shipment.providers.length < 1 }">
             <div class="card amber">
                 <div class="card-content black-text">
                     <span class="card-title">Warning</span>
@@ -163,32 +165,7 @@
     </div>
 
     <div id="tabs-logs">
-        <div class="row">
-            <div class="col s3">
-                <p>Data Refresh Interval<br>
-                    <select class="interval-select" onchange={ updateMultiplier } style="width: 100%">
-                        <option selected={ multiplier == 'stop' } value="stop">Stop</option>
-                        <option selected={ multiplier == 1 } value="1">1</option>
-                        <option selected={ multiplier == 5 } value="5">5</option>
-                        <option selected={ multiplier == 10 } value="10">10</option>
-                        <option selected={ multiplier == 20 } value="20">20</option>
-                        <option selected={ multiplier == 30 } value="30">30</option>
-                    </select></p>
-            </div>
-            <div if="{ !loading && !view.helm.error }" class="col s12" each="{replica in view.helm.replicas.sort(sortReplicas)}">
-                <div class="col s12" each="{container in replica.containers.sort(sortContainers)}">
-                    <h4>Container: {container.name}</h4>
-                    <h5>Provider: {replica.provider}</h5>
-                    <p>Host: {replica.host}</p>
-                    <p>ID: {container.id}</p>
-                    <logging logs="{ container.logs }" loggerId="{ container.id }"></logging>
-                </div>
-            </div>
-            <div if="{ view.helm.error }">
-                <h4>There are no running instances of this shipment.</h4>
-                <p>{view.helm.msg}</p>
-            </div>
-        </div>
+        <logging shipment="{ shipment }"></logging>
     </div>
 
     <div id="tabs-graphs">
@@ -240,8 +217,6 @@
     self.environments;
     self.multiplier = config.updateInterval;
     self.barges = config.barges.split(',');
-    self.sortRepliacs = utils.sortReplicas;
-    self.sortContainers = utils.sortContainers;
     self.argonaut_url = config.argonaut_url;
     self.disableShipmentBtn = '';
     self.loading = true;
@@ -292,11 +267,7 @@
         self.update();
     }
 
-    updateMultiplier(evt) {
-        var val = $(evt.target).val();
 
-        RiotControl.trigger('save_interval_multiplier', val);
-    }
 
     updateReplicas(evt) {
         var name = evt.target.name,
@@ -579,18 +550,17 @@
         if (!barge) {
             RiotControl.trigger('flash_message', 'error', "No Barge set on this shipment. Please select a barge value.", 30000);
         } else {
-          RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
-          RiotControl.trigger('get_shipment_status', self.shipment);
+            RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
+            RiotControl.trigger('get_shipment_status', self.shipment);
 
-          view.shipmentStatus = view.shipmentStatus.replace(':barge', barge);
-          view.shipmentEvents = view.shipmentEvents.replace(':barge', barge);
+            view.shipmentStatus = view.shipmentStatus.replace(':barge', barge);
+            view.shipmentEvents = view.shipmentEvents.replace(':barge', barge);
         }
-        RiotControl.trigger('get_shipment_audit_logs', self.shipment.parentShipment.name, self.shipment.name);
+
         self.update();
         setTimeout(function() {
           $('.group-select').select2();
         }, 100);
-        RiotControl.trigger('retrieve_interval_multiplier');
         RiotControl.trigger('get_containers');
     });
 
@@ -613,6 +583,12 @@
                 view.datadog_data[data.timeframe] = [];
             }
             view.datadog_data[data.timeframe].push(data);
+
+            if (view.datadog_data[data.timeframe].length) {
+                view.datadog_data[data.timeframe].sort(function (a, b) {
+                    return a.graph_title > b.graph_title ? 1 : -1;
+                });
+            }
         }
 
         self.update();
@@ -628,11 +604,15 @@
             view.shipmentStatus = config.helmit_url + '/shipment/status/:barge/' + shipment + '/' + environment;
             view.shipmentEvents = config.helmit_url + '/shipment/events/:barge/' + shipment + '/' + environment;
 
+            if (typeof tab === 'undefined') {
+                tab = 'overview';
+            }
+
             if (tab) {
                self.currentRoute += '/tabs-' + tab;
                setTimeout(function() {
                    $('#command_bridge_tabs').find('a[href="#tabs-' + tab + '"]').trigger('click');
-               }, 1000);
+               }, 250);
                if (tab === 'graphs') {
                    view.renderGraphs = true;
                }
@@ -665,26 +645,19 @@
         self.update();
     });
 
-    function updateInterval(num) {
-        d('bridge/command/logging::updateInterval(%s)', num);
+    RiotControl.on('get_shipment_model', function (caller, name, env) {
+        d('bridge/command::get_shipment_model', self.shipment, caller, name, env);
 
-        clearInterval(self.timer);
-
-        if (num !== 'stop') {
-            self.interval = parseInt(num, 10) * 1000;
-            var barge = utils.getBarge(self.shipment);
-
-            self.timer = setInterval(function () {
-                RiotControl.trigger('update_logs', barge, self.shipment.parentShipment.name, self.shipment.name);
-            }, self.interval);
-
+        // Need to wait until self.shipment is true and it matches the Shipment we are waiting for
+        if (self.shipment && self.shipment.parentShipment.name === name && self.shipment.name === env) {
+            RiotControl.trigger('get_shipment_model_result', caller, self.shipment);
         }
-
-        if (self.shipment) {
-            var barge = utils.getBarge(self.shipment);
-            RiotControl.trigger('update_logs', barge, self.shipment.parentShipment.name, self.shipment.name);
+        else {
+            setTimeout(function () {
+                RiotControl.trigger('get_shipment_model', caller, name, env);
+            }, 100);
         }
-    }
+    });
 
     function setEnvVars(envVars, vars) {
         for (var i = 0;i < vars.length;i++) {
@@ -861,20 +834,16 @@
         return graphs.concat(graphs1Hour).concat(graphs1Day);
     }
 
-    RiotControl.on('update_logs_result', function (helm) {
-        d('bridge/command/logging::update_logs_result', helm);
-
-        view.helm = helm;
-        view.helm.replicas = view.helm.replicas;
+    RiotControl.on('load_balancer_name', function (name) {
+        d('bridge/command::load_balancer_name', name, self.shipment);
         self.update();
-        RiotControl.trigger('get_logs');
     });
 
     RiotControl.on('app_changed', function (route, path, env) {
+        d('bridge/command::app_changed', route, path, env);
         if (route === 'bridge' && path && env) {
             routed = true;
         } else {
-            clearInterval(self.timer);
             routed = false;
         }
     });
@@ -884,20 +853,6 @@
         self.groups = results.groups;
         self.update();
     });
-
-
-    RiotControl.on('interval_multiplier_result', function (val) {
-        self.multiplier = val;
-        updateInterval(val);
-    });
-    /*
-    RiotControl.on('retrieve_state_result', function (state) {
-        d('bridge/command::retrieve_state_result', state)
-        self.multiplier = state.multiplier;
-        updateInterval(self.multiplier);
-    });
-    */
-
     </script>
 
     <style scoped>
