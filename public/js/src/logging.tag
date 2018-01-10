@@ -1,98 +1,153 @@
 <logging>
-    <h4>
-        Logs
-        <span class="tail">
-            <input type="checkbox" id="logger-{ loggerId }" value="{ tail }" onclick="{ setTail }" checked="{checked: tail, notChecked: !tail}"/>
-            <label for="logger-{ loggerId }">Tail Logs</label>
-        </span>
-    </h4>
-    <textarea name="logviewer" class="logs" value="{ lines }" readonly></textarea>
+    <div class="row">
+        <div class="col s3">
+            <p>Data Refresh Interval<br>
+                <select class="interval-select" onchange={ updateMultiplier } style="width: 100%">
+                    <option selected={ multiplier == 'stop' } value="stop">Stop</option>
+                    <option selected={ multiplier == 1 } value="1">1</option>
+                    <option selected={ multiplier == 5 } value="5">5</option>
+                    <option selected={ multiplier == 10 } value="10">10</option>
+                    <option selected={ multiplier == 20 } value="20">20</option>
+                    <option selected={ multiplier == 30 } value="30">30</option>
+                </select></p>
+        </div>
+        <div if="{ !loading && !helm.error }" class="col s12" each="{ replica in helm.replicas.sort(sortReplicas) }">
+            <div class="col s12" each="{ container in replica.containers.sort(sortContainers) }">
+                <h4>Container: { container.name }</h4>
+                <h5>Provider:  { replica.provider }</h5>
+                <p>Host:       { replica.host }</p>
+                <p>ID:         { container.id }</p>
+
+                <h5>Logs</h5>
+                <textarea class="logs" value="{ container.logs.join('') }" readonly></textarea>
+
+            </div>
+        </div>
+        <div if="{ loading && !helm.error }">
+            Loading
+        </div>
+        <div if="{ helm.error }">
+            <h4>There are no running instances of this shipment.</h4>
+            <p>{ view.helm.msg }</p>
+        </div>
+    </div>
 
     <script>
     var self = this,
-        d = utils.debug;
+        d = utils.debug,
+        config = window.config;
 
-    self.num         = 0;
-    self.lines       = '';
-    self.tail = true;
+    self.helm;
+    self.timer;
+    self.route;
+    self.loading = true;
+    self.loaded = false;
+    self.multiplier = config.updateInterval;
+    self.sortReplicas = utils.sortReplicas;
+    self.sortContainers = utils.sortContainers;
 
-    setTail() {
-        self.tail = !self.tail;
-        self.update();
+    updateMultiplier(evt) {
+        var val = $(evt.target).val();
+
+        RiotControl.trigger('save_interval_multiplier', val);
     }
 
-    pickContainer(evt) {
-        d('bridge/command/logging::pickContainer');
-        var num = $(evt.target).val();
+    function updateInterval(num) {
+        d('bridge/logging::updateInterval(%s)', num);
+        var barge;
 
-        self.num = num;
+        if (self.timer) {
+            clearInterval(self.timer);
+        }
 
-        RiotControl.trigger('get_logs');
+        if (self.opts.shipment) {
+            barge = utils.getBarge(self.opts.shipment);
+            d('bridge/logging::updateInterval::trigger', barge, self.route.shipment, self.route.environment)
+            RiotControl.trigger('update_logs', barge, self.route.shipment, self.route.environment);
+
+            if (num !== 'stop') {
+                self.interval = parseInt(num, 10) * 1000;
+
+                self.timer = setInterval(function () {
+                    RiotControl.trigger('update_logs', barge, self.route.shipment, self.route.environment);
+                }, self.interval);
+            }
+        }
+        else {
+            d('bridge/logging::updateInterval NOPE');
+        }
     }
 
-    self.on('mount', function () {
-        d('logs::mount');
-        autosize(self.logviewer);
-        setTimeout(function () {
-            $('.interval-select').select2();
-        }, 100);
-    });
+    function resetHelm() {
+        return {
+            error: false,
+            replicas: [
+                {
+                    host: '0.0.0.0',
+                    provider: '',
+                    containers: [
+                        {
+                            id: '1',
+                            name: '',
+                            image: 'foo',
+                            logs: ['']
+                        }
+                    ]
+                }
+            ]
+        };
+    }
 
-    self.on('update', function () {
-        d('bridge/command/logging::update', self.opts);
-        self.loggerId = self.opts.loggerid;
-        if (self.tail || !self.logs) {
-            self.logs = opts.logs;
-        }
-        utils.tailTextarea(self.logviewer, self.tail);
-    });
+    RiotControl.on('update_logs_result', function (helm) {
+        d('bridge/logging::update_logs_result', helm);
 
-    this.on('mount', function () {
-        d('bridge/element/logging::mounted');
-    })
-
-    RiotControl.on('get_logs', function () {
-        d('bridge/command/logging::get_logs');
-
-        if (!self.logs) {
-            return;
-        }
-
-        if (!self.logs.length === 0) {
-            self.lines = ["There are no containers to display logs for."];
-            self.update();
-            return;
-        }
-
-        if (Array.isArray(self.logs)) {
-            self.lines = self.logs.join('');
-        }
-
+        self.helm = helm;
         self.update();
+
+        if (!self.loading) {
+            if (self.loaded) {
+                utils.tailTextarea($('textarea.logs'));
+            }
+            else {
+                utils.setupTextarea($('textarea.logs'))
+                self.loaded = true;
+            }
+        }
     });
 
-    RiotControl.on('app_changed', function (route, path, env) {
-        self.lines = [];
-        self.logs = null;
-        self.tail = true;
+    RiotControl.on('toggle_logging_interval', function (toggle, route) {
+        d('bridge/logging::toggle_logging_interval', toggle, route);
+        self.route = route;
+
+        if (toggle) {
+            RiotControl.trigger('retrieve_interval_multiplier');
+        }
+        else {
+            self.loaded = false;
+            self.loading = true;
+            clearInterval(self.timer);
+            RiotControl.trigger('update_logs_result', resetHelm());
+        }
+    });
+
+    RiotControl.on('interval_multiplier_result', function (val) {
+        d('bridge/logging::interval_multiplier_result', val);
+        self.multiplier = val;
+
+        RiotControl.trigger('get_shipment_model', 'logging', self.route.shipment, self.route.environment);
+    });
+
+    RiotControl.on('get_shipment_model_result', function (caller, shipment) {
+        if (caller === 'logging') {
+            d('bridge/logging::get_shipment_model_result', shipment);
+            if (self.route) {
+                self.shipment = shipment;
+                self.loading = false;
+
+                updateInterval(self.multiplier);
+            }
+        }
     });
 
     </script>
-
-    <style scoped>
-        textarea {
-            color: white;
-            background-color: black;
-            max-height: 1000px;
-        }
-
-        .tail {
-            margin-left: 10px;
-        }
-
-        .log-screen > p {
-            color: white;
-        }
-
-    </style>
 </logging>

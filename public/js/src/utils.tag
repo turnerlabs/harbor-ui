@@ -287,15 +287,18 @@ var utils = (function () {
      * @param {Boolean} tail If True then tail
      *
      */
-    function tailTextarea(element, tail) {
-        if (!tail) {
-            return;
-        }
+    function tailTextarea(elements) {
+        $.each(elements, function (i, ele) {
+            var foo = autosize.update($(ele));
+            ele.scrollTop = ele.scrollHeight;
+        });
+    }
 
-        setTimeout(function() {
-            autosize.update(element);
-            element.scrollTop = element.scrollHeight;
-        }, 100);
+    function setupTextarea(elements) {
+        $.each(elements, function (i, ele) {
+            autosize($(ele));
+            ele.scrollTop = ele.scrollHeight;
+        });
     }
 
     /**
@@ -418,7 +421,7 @@ var utils = (function () {
 
         var barge;
 
-        for (var i = 0;i < shipment.providers.length;i++) {
+        for (var i = 0; i < shipment.providers.length; i++) {
             barge = shipment.providers[i].barge;
         }
 
@@ -446,6 +449,7 @@ var utils = (function () {
         sortReplicas: sortReplicas,
         sortContainers: sortContainers,
         tailTextarea: tailTextarea,
+        setupTextarea: setupTextarea,
         setPorts: setPorts,
         convertShipment: convertShipment,
         getDefaultPort: getDefaultPort,

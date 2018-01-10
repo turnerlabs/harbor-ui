@@ -68,6 +68,7 @@
             isAlb = false;
 
         self.raw_provider.id = data.lb_name;
+        RiotControl.trigger('load_balancer_name', data.lb_name);
 
         // if it has load_balancers, then it's an alb
         if (data.load_balancers) {
