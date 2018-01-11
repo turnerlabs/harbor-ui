@@ -9,4 +9,5 @@ docker-compose.yml
 harbor-compose.yml
 prod.env
 dev.env
+stage.env
 hidden.env
