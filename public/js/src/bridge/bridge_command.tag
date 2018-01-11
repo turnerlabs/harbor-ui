@@ -454,21 +454,12 @@
     }
 
     function checkDeleteButton() {
-
-        if (!self.shipment || !view.helm) {
+        d('bridge/command/overview::checkDeleteButton::start', view.helm);
+        if (!view.helm) {
           return;
         }
 
-        var total = self.shipment.providers.length,
-            count = 0;
-
-        self.shipment.providers.forEach(function(provider) {
-            if (provider.replicas === 0) {
-                count++;
-            }
-        });
-
-        if (count === total && typeof view.helm.replicas !== 'undefined' && view.helm.replicas) {
+        if (typeof view.helm.replicas !== 'undefined' && view.helm.replicas.length === 0) {
             // All replicas are zero, so we can delete
             self.disableShipmentBtn = '';
         } else {
@@ -476,7 +467,7 @@
         }
 
         RiotControl.trigger('allow_barge_change', self.disableShipmentBtn === '');
-        d('bridge/command/overview::checkDeleteButton `%s`', self.disableShipmentBtn);
+        d('bridge/command/overview::checkDeleteButton::end `%s`', self.disableShipmentBtn);
     }
 
     RiotControl.on('bridge_shipment_trigger_result', function(result, err) {
