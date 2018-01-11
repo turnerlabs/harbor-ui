@@ -468,7 +468,7 @@
             }
         });
 
-        if (count === total && view.helm.msg && view.helm.msg.toLowerCase() === 'could not find product') {
+        if (count === total && typeof view.helm.replicas !== 'undefined' && view.helm.replicas) {
             // All replicas are zero, so we can delete
             self.disableShipmentBtn = '';
         } else {
