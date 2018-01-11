@@ -228,7 +228,5 @@
 
     </script>
 
-    <style>
-        // lighthouse styles
-    </style>
+    <style></style>
 </lighthouse>
