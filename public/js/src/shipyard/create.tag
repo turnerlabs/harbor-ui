@@ -103,9 +103,11 @@
                 });
             } else {
                 // just route the user to their shipment.
+                RiotControl.trigger('send_metric', null, 'shipyard.create.shipment:no-container');
                 riot.route('bridge/%name/%env'.replace('%name', self.shipment.main.name).replace('%env', self.shipment.environment.name));
             }
         } else {
+            RiotControl.trigger('send_metric', data.errors.toString(), 'shipyard.create.shipment:failure')
             self.errors = data.errors;
         }
 
@@ -135,6 +137,9 @@
         if (!err) {
             RiotControl.trigger('build_endpoint_wait_start');
         }
+        else {
+            RiotControl.trigger('send_metric', err, 'shipyard.create.trigger:failure');
+        }
     });
 
     /**
@@ -161,6 +166,7 @@
         setTimeout(function () {
             d('shipyard/trigger::build_done::setTimeout(riot.route)');
 
+            RiotControl.trigger('send_metric', null, 'shipyard.create:success');
             riot.route('bridge/%name/%env'.replace('%name', self.shipment.main.name).replace('%env', self.shipment.environment.name));
         }, 1000 * 10);
     });

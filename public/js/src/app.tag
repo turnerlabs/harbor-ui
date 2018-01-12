@@ -64,6 +64,7 @@
             </footer>
         </div>
     </div>
+    <analytics></analytics>
 
     <script>
         var self = this,
