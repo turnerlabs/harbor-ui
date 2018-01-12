@@ -77,7 +77,7 @@
 
         self.on('mount', function () {
             d('buildit_run::mount');
-            autosize(self.builditlogs);
+            utils.setupTextarea($('textarea.log'))
         });
 
         self.on('update', function() {
@@ -95,7 +95,7 @@
                 self.view = self.opts.view;
             }
 
-            utils.tailTextarea(self.builditlogs, self.view.tail);
+            utils.tailTextarea($('textarea.log'));
         });
 
     </script>
