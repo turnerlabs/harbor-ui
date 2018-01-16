@@ -9,15 +9,15 @@
      * source: (required) 'harbor-ui'
      * action: (required) variable; i.e., 'shipyard.create', 'buildit.delete', etc.
      * error:  (optional) error string
-     * ip:     (required) Argo username
+     * user:   (required) Argo username
      * os:     (optional) navigator.platform
      * arch:   (optional) navigator.userAgent
      */
-    RiotControl.on('send_metric', function (error, action) {
+    RiotControl.on('send_metric', function (action, error) {
         var payload = {
                 source: 'harbor-ui',
                 action: action || 'unknown',
-                ip: ArgoAuth.getUser() || 'unknown',
+                user: ArgoAuth.getUser() || 'unknown',
                 os: window.navigator.platform || 'unknown',
                 arch: window.navigator.userAgent || 'unknown'
             };
@@ -27,7 +27,7 @@
         }
 
         if (window.config.send_telemetry) {
-            d('analytics::send_metric', payload);
+            d('analytics::send_metric', action, payload);
             $.ajax({
                 method: 'POST',
                 url: '/api/v1/metric',

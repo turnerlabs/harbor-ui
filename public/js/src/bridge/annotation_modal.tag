@@ -36,9 +36,11 @@
             name = $('#annotation-original-key').val();
 
         if (name) {
+            RiotControl.trigger('send_metric', 'bridge.annotation.update');
             RiotControl.trigger('update_annotation', shipment, environment, name, annotation);
         }
         else {
+            RiotControl.trigger('send_metric', 'bridge.annotation.create');
             RiotControl.trigger('create_annotation', shipment, environment, annotation);
         }
     }

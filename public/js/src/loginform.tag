@@ -53,10 +53,10 @@
 
                 if (data.success) {
                     self.parent.isAuthenticated = true;
-                    RiotControl.trigger('send_metric', null, 'app.login');
+                    RiotControl.trigger('send_metric', 'app.login');
                 } else {
                   RiotControl.trigger('flash_message', 'error', data.error);
-                  RiotControl.trigger('send_metric', data.error, 'app.login');
+                  RiotControl.trigger('send_metric', 'app.login', data.error);
                   self.username.value = '';
                   self.password.value = '';
                 }

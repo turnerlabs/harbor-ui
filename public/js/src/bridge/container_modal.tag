@@ -146,6 +146,7 @@
             port.public_port = public_port;
         }
 
+        RiotControl.trigger('send_metric', 'bridge.container.create');
         RiotControl.trigger('create_container', shipment, environment, container, port);
     }
 

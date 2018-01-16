@@ -181,6 +181,7 @@
     runBuild(evt) {
         var branch = evt.target.name;
         RiotControl.trigger('build_run_plan', self.plan.name, branch);
+        RiotControl.trigger('send_metric', null, 'buildit.plan.run.start');
         self.update();
     }
 
@@ -272,6 +273,7 @@
             self.plan.branches.push(self.newBranch);
             self.newBranch = null;
         }
+        RiotControl.trigger('send_metric', 'buildit.plan.alter.start');
         RiotControl.trigger('build_alter_plan', self.plan.name, self.plan);
     }
 
@@ -285,9 +287,11 @@
      */
     function alterPlanResult(result, err) {
         if (err) {
+             RiotControl.trigger('send_metric', 'buildit.plan.alter:failure', err)
              RiotControl.trigger('flash_message', 'error', err);
              self.error = true;
         } else {
+             RiotControl.trigger('send_metric', 'buildit.plan.alter:success')
              RiotControl.trigger('flash_message', 'success', 'Updated  "' + self.plan.name + '" Successfully');
         }
         self.updating = false;
@@ -357,6 +361,7 @@
                     RiotControl.trigger('build_get_latest_build_logs_diff', self.plan.name, self.branch.name, self.buildNum, timestamp);
                 } else {
                     RiotControl.trigger('flash_message', 'error', error);
+                    RiotControl.trigger('send_metric', 'buildit.plan.run:failure', error);
                     self.error = true;
                     self.update();
                 }
@@ -391,8 +396,10 @@
             }, 3 * 1000);
         } else if (wasRunning && data.status === 'failure') {
             RiotControl.trigger('flash_message', 'error', 'The build failed.');
+            RiotControl.trigger('send_metric', 'buildit.plan.run.end', 'The build failed.');
         } else if (wasRunning && data.status === 'success') {
             RiotControl.trigger('flash_message', 'passed', 'The build passed.');
+            RiotControl.trigger('send_metric', 'buildit.plan.run.end');
         }
 
         checking = false;
@@ -415,7 +422,9 @@
         d('build::build_run_plan_result', data);
 
         if (err) {
-            RiotControl.trigger('flash_message', 'error', 'The buildplan named: ' + self.plan.name + ' for Branch: ' + self.branch.name + ' failed to run.');
+            var message = 'The buildplan named: ' + self.plan.name + ' for Branch: ' + self.branch.name + ' failed to run.';
+            RiotControl.trigger('flash_message', 'error', message);
+            RiotControl.trigger('send_metric', 'buildit.plan.run.failed', message)
         } else {
             self.run = null;
             riot.route('buildit/' + data.name + '/' + data.branch + '/' + data.number);

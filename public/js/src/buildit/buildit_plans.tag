@@ -64,6 +64,7 @@
         }
         self.newPlan.name = self.newPlan.containerName;
         self.opts.plans.push(self.newPlan);
+        RiotControl.trigger('send_metric', 'buildit.createPlan.start');
         RiotControl.trigger('build_create_plan', self.newPlan.name, {code: self.newPlan});
         self.updating = true;
         self.update();
@@ -116,7 +117,9 @@
 
         if (err) {
             RiotControl.trigger('flash_message', 'error', 'The buildplan named: ' + self.newPlan.name + ' failed during creation with ' + err);
+            RiotControl.trigger('send_metric', 'buildit.createPlan:failure', err);
         } else {
+            RiotControl.trigger('send_metric', 'buildit.createPlan:success');
             RiotControl.trigger('flash_message', 'success', 'The buildplan named: ' + self.newPlan.name + ' was successfully created.');
             riot.route('buildit/' + self.newPlan.name);
             self.newPlan = {repo:'', branch: {}, groups: []};

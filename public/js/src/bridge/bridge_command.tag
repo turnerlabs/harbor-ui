@@ -239,6 +239,7 @@
         }
 
         url = val.join('/');
+        RiotControl.trigger('send_metric', 'bridge.pickEnvironment[%s]'.replace('%s', url));
         d('bridge/command::pickEnvironment', url);
         riot.route(url);
     }
@@ -249,6 +250,7 @@
             url = self.shipment.parentShipment.name;
 
         self.shipment.parentShipment.group = val;
+        RiotControl.trigger('send_metric', 'bridge.overview.changeGroup');
         RiotControl.trigger('shipit_update_value', url, {group: val}, 'PUT');
         self.update();
     }
@@ -292,6 +294,7 @@
         } else {
             self.shipment.enableMonitoring = false;
         }
+        RiotControl.trigger('send_metric', 'bridge.toggleMonitoring');
         RiotControl.trigger('shipit_update_value', url, { enableMonitoring: val }, 'PUT');
         self.update();
     }
@@ -309,6 +312,7 @@
             hash = window.location.hash.split('/');
 
         hash[3] = val;
+        RiotControl.trigger('send_metric', 'bridge.tab[%s]'.replace('%s', hash.join('/')));
         window.location.hash = hash.join('/');
         if (val === 'graphs') {
             view.renderGraphs = true;
@@ -389,6 +393,8 @@
             }
 
             if (tooTrigger) {
+                var metricMsg = 'bridge.trigger[%s:%e:%p].overview'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
+                RiotControl.trigger('send_metric', metricMsg);
                 RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
                 self.triggering = true;
                 self.update();
@@ -418,6 +424,7 @@
             sure = window.confirm(msg);
 
         if (sure) {
+            RiotControl.trigger('send_metric', 'bridge.shipment.delete');
             RiotControl.trigger('delete_shipment', self.shipment.parentShipment.name, self.shipment.name);
             self.update();
         } else {
@@ -427,6 +434,7 @@
 
     rollToken(evt) {
         if (confirm('Are you sure? Rolling a build token is a permanent action and cannot be undone.')) {
+            RiotControl.trigger('send_metric', 'bridge.rollBuildToken');
             RiotControl.trigger('roll_build_token', self.shipment.parentShipment.name, self.shipment.name);
         }
     }
