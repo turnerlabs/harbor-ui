@@ -15,10 +15,14 @@ var utils = (function () {
     }
 
     function debug() {
-        if (config.showDebug || self.host.indexOf('localhost') !== -1 || self.host.indexOf('10.') !== -1) {
+        if (config.showDebug || self.host.indexOf('localhost') !== -1 || self.host.indexOf('10.') !== -1 || checkSearch('debug=true')) {
             arguments[0] = ']> ' + arguments[0];
             console.log.apply(console, arguments);
         }
+    }
+
+    function checkSearch(keyval) {
+        return window.location.search.indexOf(keyval) !== -1
     }
 
     function makeUrl() {

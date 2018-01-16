@@ -69,7 +69,7 @@
     create(evt) {
         d('shipyard/confirm::create');
         RiotControl.trigger('save_state', self.state);
-        RiotControl.trigger('send_metric', null, 'shipyard.create.start');
+        RiotControl.trigger('send_metric', 'shipyard.create.start');
         riot.route('shipyard/create');
     }
 

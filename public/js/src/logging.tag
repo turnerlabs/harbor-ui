@@ -49,6 +49,7 @@
     updateMultiplier(evt) {
         var val = $(evt.target).val();
 
+        RiotControl.trigger('send_metric', 'bridge.logs.updateInterval[%s]'.replace('%s', val));
         RiotControl.trigger('save_interval_multiplier', val);
     }
 

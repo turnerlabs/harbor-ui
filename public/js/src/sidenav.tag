@@ -20,11 +20,12 @@
             hash = window.location.hash;
 
         self.currentRoute = route;
+        RiotControl.trigger('send_metric', 'app.nav[%s]'.replace('%s', route));
         riot.route(route);
     }
 
     RiotControl.on('menu_list_changed', function(list) {
-        d('menu::menu_list_changed', list);
+        d('sidenav::menu_list_changed', list);
         self.items = list;
     });
     </script>

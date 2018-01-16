@@ -95,6 +95,7 @@
 
         d('bridge_container::removeContainer', name);
 
+        RiotControl.trigger('send_metric', 'bridge.container.delete');
         RiotControl.trigger('delete_container', shipment, environment, name);
     }
 
@@ -123,6 +124,7 @@
 
         self.container.ports.push(portObj);
         portCount++
+        RiotControl.trigger('send_metric', 'bridge.container.port.add');
         RiotControl.trigger('shipit_added_port', self.container, portObj);
         self.update();
     }
@@ -131,6 +133,7 @@
         var index = parseInt(evt.target.name),
             port = self.container.ports.splice(index, 1);
         portCount--;
+        RiotControl.trigger('send_metric', 'bridge.container.delete')
         RiotControl.trigger('shipit_delete_port', self.container, port[0]);
         self.parent.update();
     }
