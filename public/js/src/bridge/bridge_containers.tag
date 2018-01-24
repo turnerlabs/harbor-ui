@@ -55,6 +55,8 @@
         }
 
         self.shipment.providers.forEach(function(provider) {
+            var metricMsg = 'bridge.trigger[%s:%e:%p].containers'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
+            RiotControl.trigger('send_metric', metricMsg);
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
 
