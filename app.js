@@ -219,11 +219,6 @@ app.get('/api/v1/blog-feed', function(req, res) {
             'Content-Type': 'application/rss+xml'
         }).status(response.code).send(response.body);
         logInfo(res);
-    }).fail(function (response) {
-        res.set({
-            'Content-Type': 'application/rss+xml'
-        }).status(response.code).send(response.body);
-        logInfo(res);
     });
 });
 
