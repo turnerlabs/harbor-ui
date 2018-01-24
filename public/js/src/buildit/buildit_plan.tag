@@ -181,7 +181,7 @@
     runBuild(evt) {
         var branch = evt.target.name;
         RiotControl.trigger('build_run_plan', self.plan.name, branch);
-        RiotControl.trigger('send_metric', null, 'buildit.plan.run.start');
+        RiotControl.trigger('send_metric', 'buildit.plan.run.start');
         self.update();
     }
 
