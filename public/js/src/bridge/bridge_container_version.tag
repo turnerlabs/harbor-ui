@@ -35,6 +35,7 @@
             self.addPort(true);
         }
         self.container.image = container.image.replace('http://', '').replace('https://', '');
+        RiotControl.trigger('send_metric', 'bridge.changeVersion[%s]'.replace('%s', self.container.image));
         RiotControl.trigger('set_container', self.container);
         self.parent.update();
     }
@@ -49,7 +50,7 @@
     self.on('update', function () {
         var version,
             update;
-            
+
         self.idx = self.opts.idx;
         self.container = self.opts.container;
 
@@ -75,11 +76,11 @@
             lastContainer = self.container.name;
             RiotControl.trigger('get_container_versions', self.container.name, setVersion);
         }
-        
+
         if (!self.container || localVersion !== self.container.version) {
-            update = true;  
+            update = true;
         }
-        
+
         localVersion = self.container.version;
         if (update) {
             setTimeout(function() { $('.bridge-version-select').select2()});

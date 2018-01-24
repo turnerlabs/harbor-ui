@@ -58,6 +58,7 @@
             environment = self.shipment.name;
 
         if (window.confirm('Are you sure you want to delete Annotation "'+ evt.item.note.key +'"?\n\nThis action CANNOT be undone.')) {
+            RiotControl.trigger('send_metric', 'bridge.annotation.delete');
             RiotControl.trigger('delete_annotation', shipment, environment, evt.item.note.key);
         }
     }

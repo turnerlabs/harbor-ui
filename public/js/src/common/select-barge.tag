@@ -23,6 +23,7 @@
           var val = $(evt.target).val();
           self.provider.barge = val;
           self.update();
+          RiotControl.trigger('send_metric', 'bridge.changeBarge')
           if (self.callback) {
               self.callback();
           }

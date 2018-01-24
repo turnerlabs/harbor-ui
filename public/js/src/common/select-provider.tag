@@ -19,6 +19,7 @@
         var val = $(evt.target).val();
 
         d('select_provider::changeProvider', val);
+        RiotControl.trigger('send_metric', 'bridge.changeProvider');
     }
 
     self.on('mount', function () {

@@ -187,10 +187,34 @@ app.post('/api/v1/datadog', function(req, res) {
     });
 });
 
+app.post('/api/v1/metric', function (req, res) {
+    var data = req.body,
+        url = process.env.HARBOR_TELEMETRY_URL || 'http://harbor-telemetry.dev.services.ec2.dmtio.net',
+        key = process.env.HARBOR_TELEMETRY_KEY || null;
+
+    if (key) {
+        url = url + '/v1/api/metric';
+        requestify.post(url, data, { headers: { 'x-key': key } })
+            .then((response) => {
+                res.status(response.code).json(response.getBody());
+                logInfo(res);
+            })
+            .fail((response) => {
+                res.status(response.code).json(response.getBody());
+                logInfo(res);
+            });
+    }
+});
+
 app.get('/api/v1/blog-feed', function(req, res) {
     var rss = configHandler.config.blog_rss;
 
     requestify.get(rss).then(function (response) {
+        res.set({
+            'Content-Type': 'application/rss+xml'
+        }).status(response.code).send(response.body);
+        logInfo(res);
+    }).fail(function (response) {
         res.set({
             'Content-Type': 'application/rss+xml'
         }).status(response.code).send(response.body);
