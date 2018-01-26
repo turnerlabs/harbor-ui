@@ -82,6 +82,9 @@
             <button class="btn" onclick="{addProvider}">Add Ec2 as a Provider</button>
         </div>
 
+        <h4>Shipment Events</h4>
+        <shipment_events></shipment_events>
+
         <h4>Shipment Status</h4>
         <container_status></container_status>
 
@@ -551,6 +554,7 @@
         } else {
             RiotControl.trigger('get_helm_details', barge,  self.shipment.parentShipment.name, self.shipment.name);
             RiotControl.trigger('get_shipment_status', self.shipment);
+            RiotControl.trigger('get_shipment_events', self.shipment);
 
             view.shipmentStatus = view.shipmentStatus.replace(':barge', barge);
             view.shipmentEvents = view.shipmentEvents.replace(':barge', barge);

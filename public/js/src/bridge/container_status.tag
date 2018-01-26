@@ -8,7 +8,7 @@
           </div>
       </div>
     </div>
-    <div if="{ !helm.error && helm.replicas.length }">
+    <div if="{ !helm.error && helm.replicas.length }" class="status-window">
         <table class="highlight">
             <thead>
                 <tr>
@@ -169,4 +169,10 @@
         self.update();
     });
     </script>
+    <style>
+    .status-window {
+        max-height: 750px;
+        overflow: auto;
+    }
+    </style>
 </container_status>
