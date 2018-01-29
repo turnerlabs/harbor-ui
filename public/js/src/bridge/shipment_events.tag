@@ -1,9 +1,10 @@
 <shipment_events>
     <div if="{ running }" class="row">
         <div class="col s12">
-            <p if="{ !show }">There are no event messages at this time.</p>
+            <p if="{ !show }">There are no event messages at this time. Which is an indication that the containers are running smoothly.</p>
+            <p if="{ show }">There are event messages. This could be an indication that there are issues with the Shipment.</p>
             <ul if="{ show }" class="collection">
-                <li each="{ event in events }" class="collection-item { typeToClass(event.type) }">
+                <li each="{ event in events }" class="collection-item { typeToClass(event.type) }" style="padding-right: 85px;">
                     <span class="badge grey lighten-2" >count: { event.count }</span> { event.message }
                 </li>
             </ul>
@@ -29,7 +30,6 @@
             case 'Normal':
                 colors = ''; break;
             case 'Warning':
-                colors = 'amber lighten-3'; break;
             default:
                 colors = 'red lighten-2'; break;
         }
