@@ -103,13 +103,15 @@
             return;
         }
 
+        // Disable trigger button
+        $('.trigger-env-var-btn').attr('disabled', true);
+
         self.shipment.providers.forEach(function(provider) {
             var metricMsg = 'bridge.trigger[%s:%e:%p].envVars'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
             RiotControl.trigger('send_metric', metricMsg);
             RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
         });
 
-        self.triggering = true;
         self.update();
     }
 
@@ -187,6 +189,11 @@
         opts.iterator[opts.index].value = value;
 
         RiotControl.trigger('shipit_update_value', url, data);
+    });
+
+    RiotControl.on('bridge_shipment_trigger_result', function (data) {
+        // Enable trigger button
+        $('.trigger-env-var-btn').attr('disabled', false);
     });
 
     RiotControl.on('environment_variable_delete', function (key, opts) {
