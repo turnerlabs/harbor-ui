@@ -59,7 +59,8 @@
 
     <script>
     var self = this,
-        d = utils.debug;
+        d = utils.debug,
+        interval;
 
     self.phase        = '';
     self.events       = [];
@@ -91,7 +92,9 @@
     }
 
     RiotControl.on('shipment_status_clear', function() {
+        d('bridge_shipment_status::shipment_status_clear')
         self.running = true;
+        clearTimeout(interval);
     });
 
     RiotControl.on('get_shipment_status', function (shipment) {
@@ -127,6 +130,11 @@
         if (data.averageRestarts > 50) {
             self.running = false;
         }
+
+        // Check again in one minute
+        interval = setTimeout(function () {
+            RiotControl.trigger('get_shipment_status', self.shipment);
+        }, 1000 * 60);
 
         self.update();
     });

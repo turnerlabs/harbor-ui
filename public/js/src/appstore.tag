@@ -1142,6 +1142,26 @@ function AppStore(host, services) {
         });
     });
 
+    self.on('fetch_shipment_events', function (barge, shipment, environment) {
+        d('HelmItStore::fetch_shipment_events', barge, shipment, environment);
+
+        $.ajax({
+            method: 'GET',
+            url: mu(hosts.helmit, 'shipment', 'events', barge, shipment, environment),
+            dataType: 'json',
+            contentType: 'application/json',
+            accepts: 'application/json',
+            success: function (result, status, xhr) {
+                d('HelmItStore::fetch_shipment_events::success', result, status);
+                RiotControl.trigger('fetch_shipment_events_result', result);
+            },
+            error: function (xhr, status, err) {
+                d('HelmItStore::fetch_shipment_events::error', err, xhr.responseText || status);
+                RiotControl.trigger('fetch_shipment_events_result', { namespace: shipment +'-'+ environment, events: [] });
+            }
+        });
+    });
+
     self.on('fetch_shipment_status_events', function (barge, shipment, environment) {
         d('HelmItStore::fetch_shipment_status_events', barge, shipment, environment);
 
