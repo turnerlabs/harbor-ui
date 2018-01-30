@@ -70,7 +70,7 @@
         self.lastRun = (new Date()).toLocaleString();
 
         if (data.namespace === self.shipment.parentShipment.name +'-'+ self.shipment.name) {
-            if (data.events.length > 1) {
+            if (data.events.length > 0) {
                 self.show = true;
 
                 self.events = data.events.filter(function (evt) {
