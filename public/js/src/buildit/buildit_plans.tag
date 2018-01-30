@@ -64,7 +64,7 @@
         }
         self.newPlan.name = self.newPlan.containerName;
         self.opts.plans.push(self.newPlan);
-        RiotControl.trigger('send_metric', 'buildit.createPlan.start');
+        RiotControl.trigger('send_metric', 'buildit.createPlan[%s].start'.replace('%s', self.newPlan.name));
         RiotControl.trigger('build_create_plan', self.newPlan.name, {code: self.newPlan});
         self.updating = true;
         self.update();
