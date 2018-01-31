@@ -23,7 +23,7 @@
             };
 
         if (error) {
-            payload.error = typeof error === 'string' ? error : error.toString();
+            payload.error = typeof error === 'string' ? error : JSON.stringify(error);
         }
 
         if (window.config.send_telemetry) {
