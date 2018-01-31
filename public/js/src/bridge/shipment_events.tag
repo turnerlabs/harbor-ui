@@ -6,6 +6,7 @@
             <ul if="{ show }" class="collection">
                 <li each="{ event in events }" class="collection-item { typeToClass(event.type) }" style="padding-right: 85px;">
                     <span class="badge grey lighten-2" >count: { event.count }</span> { event.message }
+                    <br><em>Last event { moment(event.lastTimestamp).fromNow() }.</em>
                 </li>
             </ul>
             <p if="{ lastRun }" class="grey-text lighten-2">Last check was at { lastRun }.</p>
@@ -67,13 +68,13 @@
     RiotControl.on('fetch_shipment_events_result', function (data) {
         d('bridge/shipment_events::fetch_shipment_events_result', data);
 
-        self.lastRun = (new Date()).toLocaleString();
+        self.lastRun = moment().format("h:mm:ss a \on MMM. D YYYY");
 
         if (data.namespace === self.shipment.parentShipment.name +'-'+ self.shipment.name) {
             if (data.events.length > 0) {
                 self.show = true;
 
-                self.events = data.events.filter(function (evt) {
+                self.events = data.events.sort(eventSort).filter(function (evt) {
                     return evt.reason !== 'MissingClusterDNS'
                 });
             }
@@ -85,9 +86,24 @@
         self.update();
     });
 
+    function eventSort(a, b) {
+        if (a.lastTimestamp > b.lastTimestamp) {
+            return -1;
+        }
+        else if (a.lastTimestamp < b.lastTimestamp) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
     </script>
 
     <style scoped>
+    em {
+        font-size: smaller;
+    }
     .collection {
         max-height: 250px;
         overflow: auto;

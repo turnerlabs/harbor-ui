@@ -110,7 +110,6 @@
                 self.isAuthenticated = false;
                 self.username = null;
                 RiotControl.trigger('clear_state');
-                location.reload(); // No auth, so reload page to get user to login page
             }
         }
 
