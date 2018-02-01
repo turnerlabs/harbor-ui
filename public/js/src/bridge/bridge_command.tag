@@ -35,7 +35,7 @@
         <div class="row">
             <div class="col s10">&nbsp;</div>
             <div class="col s2 right-align valign">
-                <a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a>
+                <button id="trigger-overview-top-btn" class="btn" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</button>
             </div>
         </div>
 
@@ -138,7 +138,7 @@
             </p>
             <p class="col s4">&nbsp;</p>
             <p class="col s2 valign center-align"><a class="btn" onclick="{ showModal }" target="copyModal" title="Clone the current Shipment:Environment to a new Environment">Clone</a><br>&nbsp;</p>
-            <p class="col s2 valign right-align"><a class="{ btn: true, disabled: triggering }" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</a><br>&nbsp;</p>
+            <p class="col s2 valign right-align"><button id="trigger-overview-bottom-btn" class="btn" onclick="{ triggerShipment }" title="Will trigger the Shipment">Trigger</button><br>&nbsp;</p>
         </div>
     </div>
 
@@ -386,6 +386,8 @@
             return;
         }
 
+        RiotControl.trigger('toggle_trigger_buttons', true);
+
         self.shipment.providers.forEach(function(provider) {
             var tooTrigger = true;
             if (provider.replicas === 0) {
@@ -399,7 +401,6 @@
                 var metricMsg = 'bridge.trigger[%s:%e:%p].overview'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
                 RiotControl.trigger('send_metric', metricMsg);
                 RiotControl.trigger('bridge_shipment_trigger', self.shipment.parentShipment.name, self.shipment.name, provider.name);
-                self.triggering = true;
                 self.update();
             }
         });
@@ -481,9 +482,13 @@
         d('bridge/command/overview::checkDeleteButton::end `%s`', self.disableShipmentBtn);
     }
 
-    RiotControl.on('bridge_shipment_trigger_result', function(result, err) {
-        self.triggering = false;
-        self.update();
+    RiotControl.on('toggle_trigger_buttons', function (state) {
+        $('#trigger-overview-top-btn').attr('disabled', state);
+        $('#trigger-overview-bottom-btn').attr('disabled', state);
+    });
+
+    RiotControl.on('bridge_shipment_trigger_result', function (data) {
+        RiotControl.trigger('toggle_trigger_buttons', false);
     });
 
     RiotControl.on('bridge_shipment_scale_result', function(result, err) {
