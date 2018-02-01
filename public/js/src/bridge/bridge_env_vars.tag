@@ -6,7 +6,7 @@
             <label for="edit-btn-env-var">Edit mode</label>
         </div>
         <div class="col s2 right-align valign">
-            <button class="btn trigger-env-var-btn" onclick="{ triggerShipment }">Trigger</button>
+            <button id="trigger-env-var-btn" class="btn" onclick="{ triggerShipment }">Trigger</button>
         </div>
     </div>
 
@@ -104,7 +104,7 @@
         }
 
         // Disable trigger button
-        $('.trigger-env-var-btn').attr('disabled', true);
+        RiotControl.trigger('toggle_trigger_buttons', true);
 
         self.shipment.providers.forEach(function(provider) {
             var metricMsg = 'bridge.trigger[%s:%e:%p].envVars'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
@@ -191,9 +191,12 @@
         RiotControl.trigger('shipit_update_value', url, data);
     });
 
+    RiotControl.on('toggle_trigger_buttons', function (state) {
+        $('#trigger-env-var-btn').attr('disabled', state);
+    });
+
     RiotControl.on('bridge_shipment_trigger_result', function (data) {
-        // Enable trigger button
-        $('.trigger-env-var-btn').attr('disabled', false);
+        RiotControl.trigger('toggle_trigger_buttons', false);
     });
 
     RiotControl.on('environment_variable_delete', function (key, opts) {
