@@ -6,7 +6,7 @@
             <label for="edit-btn-containers">Edit mode</label>
         </div>
         <div class="col s2 right-align valign">
-            <button class="btn trigger-containers-btn" onclick="{ triggerShipment }">Trigger</button>
+            <button id="trigger-containers-btn" class="btn" onclick="{ triggerShipment }">Trigger</button>
         </div>
     </div>
 
@@ -54,7 +54,7 @@
             return;
         }
 
-        $('.trigger-containers-btn').attr('disabled', true);
+        RiotControl.trigger('toggle_trigger_buttons', true);
 
         self.shipment.providers.forEach(function(provider) {
             var metricMsg = 'bridge.trigger[%s:%e:%p].containers'.replace('%s', self.shipment.parentShipment.name).replace('%e', self.shipment.name).replace('%p', provider.name);
@@ -106,8 +106,12 @@
         }
     });
 
+    RiotControl.on('toggle_trigger_buttons', function (state) {
+        $('#trigger-containers-btn').attr('disabled', state);
+    });
+
     RiotControl.on('bridge_shipment_trigger_result', function (data) {
-        $('.trigger-containers-btn').attr('disabled', false);
+        RiotControl.trigger('toggle_trigger_buttons', false);
     });
 
     self.on('update', function () {
