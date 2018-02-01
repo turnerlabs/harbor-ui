@@ -18,6 +18,7 @@ var express = require('express'),
     shipitHelper = require('./handlers/shipit'),
     commonHandler = require('./handlers/common'),
     datadogHandler = require('./handlers/datadog'),
+    authCacheTtl = configHandler.config.authCacheTtl,
     rssTtl = configHandler.config.rssTtl,
     port = configHandler.config.port,
     argonaut = configHandler.config.argonaut_url,
@@ -27,6 +28,18 @@ var express = require('express'),
     healthcheck = configHandler.config.healthcheck,
     url = commonHandler.url,
     app = express();
+
+var authCache = {
+    all: null,
+    users: {}
+};
+
+setInterval(function () {
+    authCache = {
+        all: null,
+        users: {}
+    };
+}, authCacheTtl)
 
 if (!global.rssCache) {
     commonHandler.fetchFeed();
@@ -64,48 +77,67 @@ app.get('/', function (req, res) {
 app.get('/config.js', configHandler.getConfigFile);
 
 app.get('/api/v1/auth/users', function(req, res) {
-    requestify.get(url(argonaut, 'api', 'users'), {dataType: 'json'}).then(function (response) {
-        res.status(response.code).json(JSON.parse(response.body));
-        logInfo(res);
-    }, function errorCallback(error) {
-        res.status(error.code).json(error.getBody());
-        logInfo(res);
-    });
+    // Cache auth/users
+    if (authCache.all) {
+        res.json(authCache.all);
+        logInfo(res, true);
+    }
+    else {
+        requestify.get(url(argonaut, 'api', 'users'), {dataType: 'json'}).then(function (response) {
+            var body = JSON.parse(response.body);
+            authCache.all = body.users;
+            res.status(response.code).json(body);
+            logInfo(res);
+        }, function errorCallback(error) {
+            res.status(error.code).json(error.getBody());
+            logInfo(res);
+        });
+    }
 });
 
 app.get('/api/v1/auth/groups/:user', function (req, res) {
     var user = req.params.user;
 
-    requestify.get(url(argonaut, 'getUserGroups', user), {dataType: 'json'}).then(function (response) {
-        // User groups come back in two arrays (groups_adminned and groups_in)
-        // combine these into one array of objects {name: value, admin: boolean}
-        var result = JSON.parse(response.body),
-            groups = [],
-            i;
+    if (typeof authCache.users[user] !== 'undefined') {
+        res.json(authCache.users[user]);
+        logInfo(res, true);
+    }
+    else {
+        requestify.get(url(argonaut, 'getUserGroups', user), {dataType: 'json'}).then(function (response) {
+            // User groups come back in two arrays (groups_adminned and groups_in)
+            // combine these into one array of objects {name: value, admin: boolean}
+            var result = JSON.parse(response.body),
+                groups = [],
+                i;
 
-        for (i = 0; i < result.groups_adminned.length; i++) {
-            groups.push({
-                name: result.groups_adminned[i],
-                admin: true
-            });
-        }
+            for (i = 0; i < result.groups_adminned.length; i++) {
+                groups.push({
+                    name: result.groups_adminned[i],
+                    admin: true
+                });
+            }
 
-        for (i = 0; i < result.groups_in.length; i++) {
-            groups.push({
-                name: result.groups_in[i],
-                admin: false
-            });
-        }
+            for (i = 0; i < result.groups_in.length; i++) {
+                groups.push({
+                    name: result.groups_in[i],
+                    admin: false
+                });
+            }
 
-        res.status(response.code).json({
-            name: result.username,
-            groups: groups
+            var body = {
+                name: result.username,
+                groups: groups
+            };
+
+            authCache.users[user] = body
+
+            res.status(response.code).json(body);
+            logInfo(res);
+        }, function errorCallback(error) {
+            res.status(error.code).json(error.getBody());
+            logInfo(res);
         });
-        logInfo(res);
-    }, function errorCallback(error) {
-        res.status(error.code).json(error.getBody());
-        logInfo(res);
-    });
+    }
 });
 
 app.get('/app/v1/cloudhealth', function (req, res) {
