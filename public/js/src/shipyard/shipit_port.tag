@@ -139,7 +139,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col s12 input-field" if="{ !onlyread }">
+        <div class="col s12 input-field" if="{ !onlyread && port.primary }">
             Load Balancer Type
             <select id="lbTypeSelect" class="proto-select" name="lbtype" onchange="{ setValue }" style="width: 100%">
                 <option
@@ -149,7 +149,7 @@
                 </option>
             </select>
         </div>
-        <div class="col s12 input-field" if="{ onlyread }">
+        <div class="col s12 input-field" if="{ onlyread && port.primary }">
             Load Balancer Type
             <p>{ port.lbtype }</p>
         </div>
