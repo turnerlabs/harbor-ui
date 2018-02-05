@@ -139,6 +139,22 @@
         </div>
     </div>
     <div class="row">
+        <div class="col s12 input-field" if="{ !onlyread }">
+            Load Balancer Type
+            <select id="lbTypeSelect" class="proto-select" name="lbtype" onchange="{ setValue }" style="width: 100%">
+                <option
+                    each="{ lb in lbTypes }"
+                    selected="{ lb.value == this.parent.port.lbtype }"
+                    value="{ lb.value }">{ lb.name }
+                </option>
+            </select>
+        </div>
+        <div class="col s12 input-field" if="{ onlyread }">
+            Load Balancer Type
+            <p>{ port.lbtype }</p>
+        </div>
+    </div>
+    <div class="row">
         <div class="col s12 input-field" if="{!onlyread}">
             Protocol
             <select id="protoSelect" class="proto-select" name="protocol" onchange="{ setValue }" style="width: 100%">
@@ -266,6 +282,7 @@
         d = utils.debug;
 
     self.protos = ['http', 'https', 'tcp'];
+    self.lbTypes = getAllowedLbTypes();
 
     /**
      * setTextAreaValue
@@ -362,6 +379,35 @@
 
         self.parent.parent.update();
     }
+
+    function getAllowedLbTypes() {
+        var types = config.lb_types_allowed.split(','), // 'd1:v1,d2:v2'
+            temp,
+            i;
+
+        for (var i = 0; i < types.length; i++) {
+            temp = types[i].split(':'); // 'display:value'
+            types[i] = { name: temp[0], value: temp[1] };
+        }
+
+        return types;
+    }
+
+    RiotControl.on('app_changed', function (route, path, env) {
+        d('shipyard/shipit_port::app_changed', route, path, env);
+        if (route === 'bridge' && path && env && env === 'containers' && self.port) {
+            switch (self.port.lbtype) {
+            case 'alb-ingress':
+                // Allow unique types to be shown; right now only alb-ingress exists
+                self.lbTypes.push({ name: self.port.lbtype, value: self.port.lbtype });
+                break;
+
+            default:
+                self.lbTypes = getAllowedLbTypes();
+                break;
+            }
+        }
+    });
 
     self.on('mount', function() {
         $('.proto-select').select2();
