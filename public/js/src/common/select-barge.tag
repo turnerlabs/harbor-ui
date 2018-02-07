@@ -21,9 +21,12 @@
 
       pickBarge(evt) {
           var val = $(evt.target).val();
+          var page = location.hash.indexOf('shipyard') !== -1 ? 'shipyard' : 'bridge';
+
           self.provider.barge = val;
           self.update();
-          RiotControl.trigger('send_metric', 'bridge.changeBarge')
+
+          RiotControl.trigger('send_metric', page + '.changeBarge')
           if (self.callback) {
               self.callback();
           }
