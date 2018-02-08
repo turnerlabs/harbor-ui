@@ -126,6 +126,12 @@
                 <label for="enableMonitoring" style="color: #000;">Enable Monitoring</label>
             </p>
 
+            <p class="col s2">LB Logging</p>
+            <p class="col s10">
+                <input type="text" id="enableLoadBalancerAccessLogs" value="{ shipment.enableLoadBalancerAccessLogs }" />
+                <button class="btn" onclick="{ updateAccessLogs }">Update</button>
+            </p>
+
             <p class="col s2" if="{ shipment.buildToken }">Build Token</p>
             <p class="col s7" if="{ shipment.buildToken }">{ shipment.buildToken }</p>
             <p class="col s3 right-align" if="{ shipment.buildToken }"><button class="btn" onclick="{ rollToken }">Roll token</button></p>
@@ -300,6 +306,18 @@
         RiotControl.trigger('send_metric', 'bridge.toggleMonitoring');
         RiotControl.trigger('shipit_update_value', url, { enableMonitoring: val }, 'PUT');
         self.update();
+    }
+
+    updateAccessLogs(evt) {
+        var val = $('#enableLoadBalancerAccessLogs').val(),
+            url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
+
+        if (val === '') {
+            val = null;
+        }
+
+        RiotControl.trigger('send_metric', 'bridge.updateAccessLogs');
+        RiotControl.trigger('shipit_update_value', url, { enableLoadBalancerAccessLogs: val }, 'PUT');
     }
 
     setTimeframe(evt) {
