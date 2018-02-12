@@ -106,6 +106,28 @@
         <h4>Annotations</h4>
         <annotations shipment="{ shipment }"></annotations>
 
+        <h4>Load Balancer Logging</h4>
+        <div class="row">
+            <p class="col s12">Logging from the load balancer created by Harbor sent to S3. If these values are not set,
+            the defaults will be used:
+            <br />&bull; Prefix: <code>#[shipment]-#[environment]</code>
+            <br />&bull; Name: <code>harbor-lb-access-logs-#[barge]-#[location]</code></p>
+
+            <p class="col s2">Bucket Prefix</p>
+            <p class="col s10">
+                <input type="text" id="access_logs_s3_bucket_prefix" value="{ shipment.access_logs_s3_bucket_prefix }" />
+            </p>
+
+            <p class="col s2">Bucket Name</p>
+            <p class="col s10">
+                <input type="text" id="access_logs_s3_bucket_name" value="{ shipment.access_logs_s3_bucket_name }" />
+            </p>
+
+            <p class="col s12">
+                <button class="btn" onclick="{ updateAccessLogs }">Update Access Log Values</button>
+            </p>
+        </div>
+
         <h4>Info</h4>
         <div class="row">
             <p class="col s2">ShipIt</p>
@@ -124,12 +146,6 @@
             <p class="col s10">
                 <input type="checkbox" id="enableMonitoring" checked="{ checked: shipment.enableMonitoring }" onchange="{ updateMonitoring }" />
                 <label for="enableMonitoring" style="color: #000;">Enable Monitoring</label>
-            </p>
-
-            <p class="col s2">LB Logging</p>
-            <p class="col s10">
-                <input type="text" id="enableLoadBalancerAccessLogs" value="{ shipment.enableLoadBalancerAccessLogs }" />
-                <button class="btn" onclick="{ updateAccessLogs }">Update</button>
             </p>
 
             <p class="col s2" if="{ shipment.buildToken }">Build Token</p>
@@ -309,15 +325,19 @@
     }
 
     updateAccessLogs(evt) {
-        var val = $('#enableLoadBalancerAccessLogs').val(),
+        var prefix = $('#access_logs_s3_bucket_prefix').val(),
+            name = $('#access_logs_s3_bucket_name').val(),
             url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
 
-        if (val === '') {
-            val = null;
+        if (prefix === '') {
+            prefix = null;
+        }
+        if (name === '') {
+            name = null;
         }
 
         RiotControl.trigger('send_metric', 'bridge.updateAccessLogs');
-        RiotControl.trigger('shipit_update_value', url, { enableLoadBalancerAccessLogs: val }, 'PUT');
+        RiotControl.trigger('shipit_update_value', url, { access_logs_s3_bucket_prefix: prefix, access_logs_s3_bucket_name: name }, 'PUT');
     }
 
     setTimeframe(evt) {
