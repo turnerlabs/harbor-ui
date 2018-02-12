@@ -106,25 +106,36 @@
         <h4>Annotations</h4>
         <annotations shipment="{ shipment }"></annotations>
 
-        <h4>Load Balancer Logging</h4>
+        <h4>Load Balancer Logs</h4>
         <div class="row">
-            <p class="col s12">Logging from the load balancer created by Harbor sent to S3. If these values are not set,
-            the defaults will be used:
+            <p class="col s12">Configuration for the location of the Shipment Environment's load balancer access logs.
+            If there are no override values, then the default settings will be used. The default settings are:
             <br />&bull; Prefix: <code>#[shipment]-#[environment]</code>
             <br />&bull; Name: <code>harbor-lb-access-logs-#[barge]-#[location]</code></p>
 
             <p class="col s2">Bucket Prefix</p>
             <p class="col s10">
-                <input type="text" id="access_logs_s3_bucket_prefix" value="{ shipment.access_logs_s3_bucket_prefix }" />
+                <input
+                    type="text"
+                    id="access_logs_s3_bucket_prefix"
+                    value="{ shipment.access_logs_s3_bucket_prefix }"
+                    placeholder="{ shipment.parentShipment.name }-{ shipment.name }"
+                />
             </p>
 
             <p class="col s2">Bucket Name</p>
             <p class="col s10">
-                <input type="text" id="access_logs_s3_bucket_name" value="{ shipment.access_logs_s3_bucket_name }" />
+                <input
+                    type="text"
+                    id="access_logs_s3_bucket_name"
+                    value="{ shipment.access_logs_s3_bucket_name }"
+                    placeholder="harbor-lb-access-logs-{ shipment.providers[0].barge }-{ shipment.providers[0].name }"
+                />
             </p>
 
             <p class="col s12">
-                <button class="btn" onclick="{ updateAccessLogs }">Update Access Log Values</button>
+                <button class="btn" onclick="{ updateAccessLogs }">Update LB Logging Values</button>
+                &nbsp;&nbsp;<span class="grey-text">{ usingDefaultLbLogs() }</span>
             </p>
         </div>
 
@@ -338,6 +349,35 @@
 
         RiotControl.trigger('send_metric', 'bridge.updateAccessLogs');
         RiotControl.trigger('shipit_update_value', url, { access_logs_s3_bucket_prefix: prefix, access_logs_s3_bucket_name: name }, 'PUT');
+    }
+
+    usingDefaultLbLogs() {
+        var value = 0,
+            output;
+
+        if (self.shipment.access_logs_s3_bucket_prefix) {
+            value += 1;
+        }
+
+        if (self.shipment.access_logs_s3_bucket_name) {
+            value += 2;
+        }
+
+        switch (value) {
+        case 0:
+            output = 'Using the default settings.'; break;
+
+        case 1:
+            output = 'Using a custom prefix setting and the default bucket name.'; break;
+
+        case 2:
+            output = 'Using the default prefix setting and a custom bucket name.'; break;
+
+        case 3:
+            output = 'Using custom settings.'; break;
+        }
+
+        return output;
     }
 
     setTimeframe(evt) {
