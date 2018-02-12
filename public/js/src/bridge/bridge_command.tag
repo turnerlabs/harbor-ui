@@ -117,8 +117,8 @@
             <p class="col s10">
                 <input
                     type="text"
-                    id="access_logs_s3_bucket_prefix"
-                    value="{ shipment.access_logs_s3_bucket_prefix }"
+                    id="lb_access_logs_s3_bucket_prefix"
+                    value="{ shipment.lb_access_logs_s3_bucket_prefix }"
                     placeholder="{ shipment.parentShipment.name }-{ shipment.name }"
                 />
             </p>
@@ -127,8 +127,8 @@
             <p class="col s10">
                 <input
                     type="text"
-                    id="access_logs_s3_bucket_name"
-                    value="{ shipment.access_logs_s3_bucket_name }"
+                    id="lb_access_logs_s3_bucket_name"
+                    value="{ shipment.lb_access_logs_s3_bucket_name }"
                     placeholder="harbor-lb-access-logs-{ shipment.providers[0].barge }-{ shipment.providers[0].name }"
                 />
             </p>
@@ -336,8 +336,8 @@
     }
 
     updateAccessLogs(evt) {
-        var prefix = $('#access_logs_s3_bucket_prefix').val(),
-            name = $('#access_logs_s3_bucket_name').val(),
+        var prefix = $('#lb_access_logs_s3_bucket_prefix').val(),
+            name = $('#lb_access_logs_s3_bucket_name').val(),
             url = self.shipment.parentShipment.name + '/environment/' + self.shipment.name;
 
         if (prefix === '') {
@@ -348,18 +348,18 @@
         }
 
         RiotControl.trigger('send_metric', 'bridge.updateAccessLogs');
-        RiotControl.trigger('shipit_update_value', url, { access_logs_s3_bucket_prefix: prefix, access_logs_s3_bucket_name: name }, 'PUT');
+        RiotControl.trigger('shipit_update_value', url, { lb_access_logs_s3_bucket_prefix: prefix, lb_access_logs_s3_bucket_name: name }, 'PUT');
     }
 
     usingDefaultLbLogs() {
         var value = 0,
             output;
 
-        if (self.shipment.access_logs_s3_bucket_prefix) {
+        if (self.shipment.lb_access_logs_s3_bucket_prefix) {
             value += 1;
         }
 
-        if (self.shipment.access_logs_s3_bucket_name) {
+        if (self.shipment.lb_access_logs_s3_bucket_name) {
             value += 2;
         }
 
