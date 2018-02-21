@@ -10,7 +10,7 @@
                         <button class="btn-floating red right" onclick="{ removeCname }"><i class="material-icons">delete</i></button>
                         <input class="cnames" type="text" value="{ url }" />
                     </li>
-                    <li class="collection-item">
+                    <li class="collection-item blue-grey lighten-5">
                         <input id="add-cname" type="text" placeholder="Add new CNAME (e.g., foo.example.com)" />
                         <button class="btn btn-sm" onclick="{ addCname }">Add</button>
                     </li>
@@ -87,4 +87,10 @@
         }
     });
     </script>
+
+    <style scoped>
+    .cnames {
+        width: 90%
+    }
+    </style>
 </cnames>
