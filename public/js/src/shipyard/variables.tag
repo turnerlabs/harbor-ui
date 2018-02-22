@@ -102,6 +102,8 @@
 
     self.on('mount', function () {
         d('shipyard/variables::mount');
+
+        RiotControl.trigger('allow_barge_change', true);
     });
 
     RiotControl.on('shipyard_add_envvar', function (envVar) {

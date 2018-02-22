@@ -30,6 +30,7 @@ var pkgConfig = require('../package.json'),
         shipit_top_level: process.env.TOP_LEVEL ? process.env.TOP_LEVEL.split(',') : ['PRODUCT', 'PROJECT', 'CUSTOMER', 'PROPERTY'],
         barges: process.env.BARGES || ',mss,cnn,nba,digital-sandbox,corp-sandbox',
         default_barge: process.env.DEFAULT_BARGE || 'mss',
+        lb_types_allowed: process.env.LB_TYPES_ALLOWED || 'default (alb):default,alb:alb,elb:elb',
         version: pkgConfig.version
     },
     FE_CONFIG_TEMPLATE = './templates/config.tpl.js';

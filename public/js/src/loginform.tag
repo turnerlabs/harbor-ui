@@ -48,8 +48,11 @@
         });
 
         function login(evt) {
+            $('#login').attr('disabled', true);
+
             ArgoAuth.login(self.username.value, self.password.value, function(data) {
                 d('loginform::ArgoAuth.login', data);
+                $('#login').attr('disabled', false);
 
                 if (data.success) {
                     self.parent.isAuthenticated = true;
