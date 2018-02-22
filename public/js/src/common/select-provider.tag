@@ -17,9 +17,10 @@
 
     changeProvider(evt) {
         var val = $(evt.target).val();
+        var page = location.hash.indexOf('shipyard') !== -1 ? 'shipyard' : 'bridge';
 
         d('select_provider::changeProvider', val);
-        RiotControl.trigger('send_metric', 'bridge.changeProvider');
+        RiotControl.trigger('send_metric', page + '.changeProvider');
     }
 
     self.on('mount', function () {
