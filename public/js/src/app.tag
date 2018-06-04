@@ -39,17 +39,13 @@
             <footer class="page-footer grey lighten-2">
                 <div class="container grey-text text-darken-1">
                       <div class="row left-pad">
-                          <div class="col s4">
+                          <div class="col s6">
                               <h5>BuildIt</h5>
                               <p class="footer-box">Build Docker images from any git repo.</p>
                               <p><a class="btn" href="#buildit">BuildIt</a></p>
                           </div>
-                          <div class="col s4">
-                              <h5>Shipyard</h5>
-                              <p class="footer-box">The Shipyard allows you to walk through creating a new Shipment.</p>
-                              <p><a class="btn" href="#shipyard/info">Shipyard</a></p>
-                          </div>
-                          <div class="col s4">
+
+                          <div class="col s6">
                               <h5>Command Bridge</h5>
                               <p class="footer-box">View and modify running Shipments.</p>
                               <p><a class="btn" href="#bridge">Command Bridge</a></p>

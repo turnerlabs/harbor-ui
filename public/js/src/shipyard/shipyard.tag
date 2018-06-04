@@ -18,8 +18,6 @@
         d = utils.debug,
         currentRoute;
 
-    RiotControl.trigger('menu_register', 'Shipyard', 'shipyard/info');
-
     riot.route(function (type, step, path, branch) {
 
         if (type === 'shipyard') {

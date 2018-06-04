@@ -7,18 +7,25 @@
 
     <div class="row">
         <div class="col s6">
-            <h4>Getting Started</h4>
-            <p>If you are you are new to Harbor, start with our <a href="{ config.blog_url }articles/hello-world/">getting started</a>
-                document over on the <a href="{ config.blog_url }">Harbor Blog</a>. The article will give you a
-                complete overview of how to begin with local development, through creating your
-                first Shipment in Harbor. Don't forget to subscribe to the <a href="{ config.blog_rss }">RSS feed</a> to get the
-                latest updates to documentation, blog posts and help articles.</p>
-            <h5>First Steps</h5>
-            <ol>
-                <li>Create a new Container using <a href="#buildit">BuildIt</a>.</li>
-                <li>Create a new Shipment using the <a href="#shipyard/info">Shipyard</a>.</li>
-                <li>Manage your Shipment (including cloning it to another environment) using the <a href="#bridge">Command Bridge</a>.</li>
-            </ol>
+            <h4>Sunsetting Harbor</h4>
+            <p>
+                As we announced on March 28th, we are sunsetting the Harbor platform in
+                favor of teams having more control over their container orchestration. The
+                Cloud Architecture team is developing a migration tool to ease a move to
+                <a href="https://aws.amazon.com/fargate/" target="_blank">AWS Fargate</a>,
+                which we believe is a great platform with even more features than Harbor,
+                while offering all the benefits of Harbor. Please head over to our
+                <a href="https://github.com/turnercode/fargate-migration" target="_blank">migration blog</a>
+                to learn more about migrating off of Harbor.
+            </p>
+            <h5>Deprecated Services</h5>
+            <dl>
+                <dt>New build plans in BuildIt</dt>
+                <dd>Instead, consider creating the plan in CircleCI.</dd>
+
+                <dt>New Shipments in Harbor</dt>
+                <dd>Instead, consider creating the service in Fargate.</dd>
+            </dl>
         </div>
         <div class="col s6">
             <h4>Latest News</h4>
@@ -82,6 +89,10 @@
     </script>
 
     <style scoped>
+        dt {
+            font-weight: bold;
+        }
+
         .info-box {
           border-right: 1px solid #e0e0e0;
         }
