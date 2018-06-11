@@ -29,13 +29,6 @@
         </div>
     </div>
 
-    <h2> Add a Plan </h2>
-    <div>
-        <buildit_add_plan plan="{ newPlan }" groups="{groups}"></buildit_add_plan>
-        <button disabled="{updating ? true : ''}"  class="btn" onclick="{ addPlan }" >Save</button>
-    </div>
-
-
     <script>
     var self = this,
         d = utils.debug,
