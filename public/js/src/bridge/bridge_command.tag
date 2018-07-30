@@ -103,6 +103,9 @@
             </p>
         </div>
 
+        <h4>IAM Information</h4>
+        <bridge_iam environment="{shipment}"></bridge_iam>
+
         <h4>Annotations</h4>
         <annotations shipment="{ shipment }"></annotations>
 
